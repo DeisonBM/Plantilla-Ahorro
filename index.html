@@ -1,29 +1,397 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="theme-color" content="#080b12"/>
-  <title>Reto Ahorro</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#080b12"/>
+<title>Reto Ahorro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --bg:#080b12; --surface:#0e1420; --s2:#141c2e; --s3:#1c2640;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.13);
+  --text:#e8edf8; --muted:#6b7a9e;
+  --gold:#f5c842; --gold2:#ff9d00;
+  --green:#00e5a0; --blue:#3d8bff; --red:#ff4d6d; --purp:#a78bfa;
+  --radius:18px; --shadow:0 8px 40px rgba(0,0,0,.5);
+  --font:'Outfit',sans-serif; --mono:'JetBrains Mono',monospace;
+}
+body.light {
+  --bg:#eef1f9; --surface:#fff; --s2:#f3f5fc; --s3:#e8ecf8;
+  --border:rgba(0,0,0,.07); --border2:rgba(0,0,0,.13);
+  --text:#0d1117; --muted:#6878a0; --shadow:0 8px 40px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;transition:background .4s,color .4s;overflow-x:hidden;}
+.hidden{display:none!important;}
+a{color:inherit;text-decoration:none;}
+button{font-family:var(--font);cursor:pointer;}
+input,textarea{font-family:var(--font);}
+
+/* ═══════════════════════════════════════════
+   PANTALLA DE CARGA
+═══════════════════════════════════════════ */
+#loading-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:2000;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem;
+}
+.loading-coin{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;color:#fff;
+  box-shadow:0 0 32px rgba(245,200,66,.45);
+  animation:coinFloat 2s ease-in-out infinite;
+}
+@keyframes coinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.spin-ring{width:38px;height:38px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{color:var(--muted);font-size:.88rem;}
+
+/* ═══════════════════════════════════════════
+   LOGIN — pantalla de acceso
+═══════════════════════════════════════════ */
+#login-screen{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 0%,#0f1a35,#050810 70%);
+  z-index:1000;padding:1rem;
+}
+.stars-canvas{position:absolute;inset:0;opacity:.6;pointer-events:none;}
+.login-card{
+  position:relative;background:rgba(14,20,36,.9);
+  border:1px solid rgba(255,255,255,.1);border-radius:28px;
+  padding:2.4rem 2rem 1.8rem;width:min(400px,100%);
+  backdrop-filter:blur(24px);
+  box-shadow:0 0 80px rgba(61,139,255,.12),0 24px 64px rgba(0,0,0,.6);
+  text-align:center;animation:cardIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.96)}to{opacity:1;transform:none}}
+.login-logo{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;color:#fff;margin:0 auto 1.2rem;
+  box-shadow:0 0 32px rgba(245,200,66,.4);
+  animation:coinFloat 3s ease-in-out infinite;
+}
+.login-title{font-size:1.8rem;font-weight:800;color:#fff;letter-spacing:-.03em;}
+.login-sub{font-size:.85rem;color:var(--muted);margin:.35rem 0 1.5rem;}
+
+/* Tabs admin/reto */
+.login-tabs{display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:.25rem;margin-bottom:1.4rem;gap:.25rem;}
+.ltab{flex:1;padding:.55rem;border-radius:9px;border:none;background:transparent;color:var(--muted);font-size:.82rem;font-weight:600;transition:all .2s;cursor:pointer;}
+.ltab.active{background:var(--blue);color:#fff;box-shadow:0 2px 10px rgba(61,139,255,.3);}
+
+/* PIN dots */
+.pin-row{display:flex;justify-content:center;gap:1rem;margin-bottom:.9rem;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:transparent;transition:all .2s;}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);box-shadow:0 0 10px rgba(245,200,66,.55);transform:scale(1.15);}
+.pin-dot.shake{animation:shake .4s ease;border-color:var(--red);background:var(--red);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.pin-msg{color:var(--red);font-size:.8rem;font-weight:600;margin-bottom:.7rem;min-height:20px;display:flex;align-items:center;justify-content:center;gap:.35rem;}
+
+/* Keypad */
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.8rem;}
+.kbtn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#fff;border-radius:13px;padding:.95rem;font-size:1.1rem;font-weight:600;transition:all .15s;user-select:none;-webkit-tap-highlight-color:transparent;}
+.kbtn:hover:not(.ghost){background:rgba(61,139,255,.2);border-color:rgba(61,139,255,.4);transform:scale(1.05);}
+.kbtn:active:not(.ghost){transform:scale(.93);}
+.kbtn.ghost{background:transparent;border-color:transparent;cursor:default;pointer-events:none;}
+.kbtn.del{color:var(--muted);}
+.kbtn.del:hover{color:var(--red);}
+.login-credit{margin-top:1.3rem;font-size:.73rem;color:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;gap:.35rem;}
+
+/* ═══════════════════════════════════════════
+   PANEL ADMIN
+═══════════════════════════════════════════ */
+#admin-screen{min-height:100vh;background:var(--bg);}
+.admin-hdr{
+  position:sticky;top:0;background:rgba(8,11,18,.9);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);z-index:100;
+}
+body.light .admin-hdr{background:rgba(238,241,249,.92);}
+.admin-hdr-inner{max-width:1000px;margin:0 auto;padding:.8rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.admin-brand{display:flex;align-items:center;gap:.7rem;}
+.admin-coin{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:1.05rem;color:#fff;}
+.admin-title{font-size:1rem;font-weight:700;}
+.admin-sub{font-size:.7rem;color:var(--muted);}
+.admin-hdr-actions{display:flex;gap:.4rem;}
+.hbtn{width:36px;height:36px;border-radius:10px;background:var(--s2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.hbtn:hover{background:var(--s3);color:var(--text);}
+.hbtn.warn:hover{background:rgba(255,77,109,.15);color:var(--red);border-color:rgba(255,77,109,.3);}
+
+.admin-main{max-width:1000px;margin:0 auto;padding:1.5rem 1.25rem 3rem;}
+
+/* Stats admin */
+.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.5rem;}
+@media(max-width:600px){.admin-stats{grid-template-columns:1fr 1fr;}}
+.astat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;display:flex;align-items:center;gap:.8rem;}
+.astat-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.astat-val{font-family:var(--mono);font-size:1.35rem;font-weight:700;line-height:1;}
+.astat-lbl{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;}
+
+/* Sección retos */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.section-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:.5rem;}
+.btn-new{background:var(--blue);border:none;color:#fff;border-radius:11px;padding:.6rem 1.1rem;font-size:.85rem;font-weight:700;display:flex;align-items:center;gap:.4rem;transition:all .2s;}
+.btn-new:hover{opacity:.88;transform:translateY(-1px);}
+
+/* Cards de retos */
+.retos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+.reto-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1.2rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;
+}
+.reto-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.2);}
+.reto-card-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0;}
+.reto-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem;}
+.reto-card-name{font-size:1rem;font-weight:700;letter-spacing:-.01em;}
+.reto-card-date{font-size:.68rem;color:var(--muted);font-family:var(--mono);margin-top:.2rem;}
+.reto-card-actions{display:flex;gap:.3rem;flex-shrink:0;}
+.rca-btn{width:30px;height:30px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.78rem;cursor:pointer;transition:all .18s;}
+.rca-btn:hover{background:var(--s3);color:var(--text);}
+.rca-btn.del-btn:hover{background:rgba(255,77,109,.15);color:var(--red);}
+
+.reto-card-meta{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem;}
+.rcm-item{background:var(--s2);border-radius:9px;padding:.5rem .7rem;}
+.rcm-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.rcm-val{font-family:var(--mono);font-size:.82rem;font-weight:600;margin-top:.15rem;}
+
+/* Barra de progreso en card */
+.reto-card-prog{margin-bottom:1rem;}
+.rcp-head{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:.4rem;}
+.rcp-rail{height:6px;background:var(--s2);border-radius:999px;overflow:hidden;}
+.rcp-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .6s;}
+
+/* Botón copiar link */
+.btn-link{
+  width:100%;background:var(--s2);border:1px solid var(--border2);color:var(--muted);
+  border-radius:10px;padding:.55rem;font-size:.78rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .2s;
+}
+.btn-link:hover{background:var(--s3);color:var(--text);}
+.btn-link.copied{background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.3);color:var(--green);}
+
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.empty-ico{font-size:3rem;margin-bottom:1rem;opacity:.4;}
+.empty-state p{font-size:.9rem;}
+
+/* ═══════════════════════════════════════════
+   MODAL CREAR/EDITAR RETO
+═══════════════════════════════════════════ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem;overflow-y:auto;}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:22px;padding:2rem 1.8rem;max-width:480px;width:100%;box-shadow:var(--shadow);animation:cardIn .3s cubic-bezier(.22,1,.36,1);}
+.modal-box.wide{max-width:560px;}
+.modal-title{font-size:1.15rem;font-weight:800;margin-bottom:1.4rem;display:flex;align-items:center;gap:.5rem;}
+
+/* Form fields */
+.form-field{margin-bottom:1.1rem;}
+.form-label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.45rem;}
+.form-input{width:100%;background:var(--s2);border:1.5px solid var(--border2);border-radius:11px;color:var(--text);padding:.72rem 1rem;font-family:var(--mono);font-size:.92rem;outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--blue);}
+.form-hint{font-size:.72rem;color:var(--muted);margin-top:.3rem;display:block;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+@media(max-width:400px){.form-row{grid-template-columns:1fr;}}
+
+/* Preview calculado */
+.calc-preview{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:1.2rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.cp-row{display:flex;align-items:center;gap:.4rem;font-size:.8rem;}
+.cp-row span{color:var(--muted);}
+.cp-row b{font-family:var(--mono);font-weight:600;margin-left:auto;}
+
+.modal-actions{display:flex;gap:.7rem;justify-content:flex-end;}
+.btn-cancel{background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:.62rem 1.2rem;font-weight:700;font-size:.87rem;transition:background .2s;}
+.btn-cancel:hover{background:var(--s3);}
+.btn-save{background:var(--blue);border:none;color:#fff;border-radius:11px;padding:.62rem 1.4rem;font-weight:700;font-size:.87rem;display:flex;align-items:center;gap:.4rem;transition:opacity .2s;}
+.btn-save:hover{opacity:.88;}
+.btn-save:disabled{opacity:.5;cursor:not-allowed;}
+
+/* Modal confirmar eliminar */
+.modal-icon-wrap{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;}
+.modal-box h3{font-size:1.15rem;font-weight:800;margin-bottom:.4rem;text-align:center;}
+.modal-box .modal-p{color:var(--muted);font-size:.87rem;line-height:1.55;margin-bottom:1.2rem;text-align:center;}
+.modal-row{display:flex;gap:.7rem;justify-content:center;}
+.m-cancel{background:var(--s2);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:.6rem 1.3rem;font-weight:700;font-size:.88rem;cursor:pointer;transition:background .2s;}
+.m-cancel:hover{background:var(--s3);}
+.m-confirm{background:var(--red);border:none;color:#fff;border-radius:11px;padding:.6rem 1.3rem;font-weight:700;font-size:.88rem;cursor:pointer;transition:opacity .2s;}
+.m-confirm:hover{opacity:.85;}
+
+/* Distribución de niveles en preview */
+#cp-dist { grid-column: 1 / -1; margin-top:.3rem; }
+.cp-dist-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.3rem; font-size:.75rem; }
+.cp-dist-monto { font-family:var(--mono); font-weight:600; color:var(--text); min-width:80px; }
+.cp-dist-bar-wrap { flex:1; height:6px; background:var(--s3); border-radius:99px; overflow:hidden; }
+.cp-dist-bar { height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); border-radius:99px; display:block; }
+.cp-dist-cant { font-family:var(--mono); color:var(--green); font-weight:700; min-width:30px; text-align:right; font-size:.72rem; }
+
+/* ═══════════════════════════════════════════
+   PANTALLA DE RETO (participante)
+═══════════════════════════════════════════ */
+#reto-screen{min-height:100vh;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.14;pointer-events:none;}
+body.light .orb{opacity:.07;}
+.o1{width:500px;height:500px;background:var(--blue);top:-200px;left:-150px;animation:orbMove 12s ease-in-out infinite alternate;}
+.o2{width:400px;height:400px;background:var(--gold);top:30%;right:-100px;animation:orbMove 15s ease-in-out infinite alternate-reverse;}
+.o3{width:350px;height:350px;background:var(--green);bottom:-100px;left:30%;animation:orbMove 10s ease-in-out infinite alternate;}
+@keyframes orbMove{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,20px) scale(1.1)}}
+.bg-orbs{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+
+/* Header reto */
+.hdr{position:sticky;top:0;background:rgba(8,11,18,.85);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);z-index:100;}
+body.light .hdr{background:rgba(238,241,249,.9);}
+.hdr-inner{max-width:1100px;margin:0 auto;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.hdr-brand{display:flex;align-items:center;gap:.65rem;min-width:0;}
+.hdr-coin{width:38px;height:38px;flex-shrink:0;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;}
+.hdr-title{font-size:1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+.hdr-badge{display:flex;align-items:center;gap:.3rem;font-size:.67rem;color:var(--muted);font-family:var(--mono);}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s ease infinite;flex-shrink:0;}
+.badge-dot.offline{background:var(--muted);box-shadow:none;animation:none;}
+.badge-dot.syncing{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.hdr-actions{display:flex;gap:.4rem;flex-shrink:0;}
+
+/* Main reto */
+.reto-main{max-width:1100px;margin:0 auto;padding:1.3rem 1.2rem 2.5rem;position:relative;z-index:1;}
+
+/* Hero */
+.hero-section{display:grid;grid-template-columns:1fr 220px;gap:1rem;margin-bottom:1.1rem;align-items:stretch;}
+@media(max-width:700px){.hero-section{grid-template-columns:1fr;}}
+.hero-card{background:linear-gradient(135deg,#0f1e3d,#0b1428);border:1px solid rgba(61,139,255,.18);border-radius:var(--radius);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:relative;overflow:hidden;}
+body.light .hero-card{background:linear-gradient(135deg,#dce8ff,#cdd8f8);}
+.hero-bg-text{position:absolute;right:-16px;bottom:-8px;font-size:5rem;font-weight:900;letter-spacing:-.05em;color:rgba(255,255,255,.025);user-select:none;pointer-events:none;}
+.hero-content{flex:1;min-width:0;}
+.hero-lbl{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;}
+.hero-amount{font-family:var(--mono);font-size:clamp(1.4rem,3.5vw,2.2rem);font-weight:600;color:#fff;line-height:1;}
+body.light .hero-amount{color:#0d1117;}
+.hero-sub{font-size:.78rem;color:var(--muted);margin-top:.45rem;}
+.hero-ring{width:96px;height:96px;transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:8;}
+.ring-fill{fill:none;stroke:url(#ringGrad);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.34,1.56,.64,1);}
+.ring-pct{transform:rotate(90deg);transform-origin:center;fill:var(--gold);font-family:var(--mono);font-size:14px;font-weight:700;}
+.ring-sub-txt{transform:rotate(90deg);transform-origin:center;fill:var(--muted);font-family:var(--mono);font-size:8px;}
+
+/* Mini stats */
+.mini-stats{display:flex;flex-direction:column;gap:.6rem;}
+@media(max-width:700px){.mini-stats{flex-direction:row;flex-wrap:wrap;}}
+.mini-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:.75rem .9rem;display:flex;align-items:center;gap:.6rem;flex:1;min-width:0;}
+.mini-ico-wrap{width:32px;height:32px;flex-shrink:0;border-radius:8px;background:color-mix(in srgb,var(--ic) 15%,transparent);border:1px solid color-mix(in srgb,var(--ic) 30%,transparent);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--ic);}
+.mini-lbl{font-size:.62rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em;display:block;}
+.mini-val{font-family:var(--mono);font-size:.85rem;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mini-val.gold{color:var(--gold);}
+.mini-val.green{color:var(--green);}
+
+/* Progreso */
+.prog-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:1rem;}
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;font-size:.78rem;color:var(--muted);}
+.prog-label{display:flex;align-items:center;gap:.4rem;font-weight:600;}
+.prog-nums{font-family:var(--mono);font-size:.8rem;}
+.prog-nums b{color:var(--text);font-weight:700;}
+.prog-rail{height:11px;background:var(--s2);border-radius:999px;position:relative;}
+.prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .75s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+.fill-glimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:glimmer 2.5s ease-in-out infinite;}
+@keyframes glimmer{from{transform:translateX(-100%)}to{transform:translateX(400%)}}
+.milestone{position:absolute;top:-4px;width:2px;height:19px;background:var(--border2);border-radius:1px;transform:translateX(-50%);}
+.ms-label{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:.58rem;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+
+/* Toolbar */
+.toolbar{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1rem;}
+.filter-row{display:flex;gap:.4rem;flex-wrap:wrap;}
+.fpill{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:.35rem .8rem;font-size:.77rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.3rem;}
+.fpill em{font-style:normal;margin-left:.2rem;background:var(--s2);border-radius:999px;padding:0 .38rem;font-size:.68rem;}
+.fpill:hover,.fpill.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.fpill.active em{background:rgba(255,255,255,.2);}
+.legend{display:flex;flex-wrap:wrap;gap:.3rem;}
+.leg-item{display:flex;align-items:center;gap:.28rem;font-size:.67rem;font-family:var(--mono);color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.2rem .45rem;}
+.leg-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0;}
+
+/* Grid casillas */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:.5rem;}
+@media(max-width:600px){.grid{grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:.4rem;}}
+@media(max-width:380px){.grid{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:.32rem;}}
+.casilla{
+  --cc:#fff;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
+  padding:.6rem .4rem .55rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  position:relative;overflow:hidden;transition:transform .18s,box-shadow .22s,border-color .22s;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.casilla::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cc);opacity:.75;border-radius:12px 12px 0 0;}
+.casilla:hover:not(.done){transform:translateY(-3px) scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.22);border-color:var(--cc);}
+.casilla.done{background:color-mix(in srgb,var(--cc) 13%,transparent);border-color:var(--cc);cursor:default;}
+.casilla.done:hover{transform:none;box-shadow:none;}
+.casilla.f-hide{display:none;}
+.cas-num{font-family:var(--mono);font-size:.57rem;color:var(--muted);letter-spacing:.04em;}
+.cas-amount{font-family:var(--mono);font-size:.78rem;font-weight:600;color:var(--text);text-align:center;line-height:1.2;}
+.casilla.done .cas-amount{color:var(--cc);}
+.cas-check{font-size:.82rem;color:var(--cc);line-height:1;transform:scale(0) rotate(-30deg);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.casilla.done .cas-check{transform:scale(1) rotate(0);opacity:1;}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.16) translateY(-4px)}65%{transform:scale(.97)}100%{transform:scale(1)}}
+.casilla.popping{animation:pop .35s ease-out;}
+.cas-particles{position:absolute;inset:0;pointer-events:none;}
+.cas-p{position:absolute;width:5px;height:5px;border-radius:50%;animation:burst .5s ease-out both;}
+@keyframes burst{0%{opacity:1;transform:scale(0)}80%{opacity:.8}100%{opacity:0;transform:scale(3.5)}}
+.grid-section{position:relative;}
+.grid-loader{position:absolute;inset:0;background:rgba(8,11,18,.72);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border-radius:var(--radius);z-index:10;font-size:.88rem;color:var(--muted);font-weight:600;}
+
+/* Footer */
+.app-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-top:1.3rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.7rem;color:var(--muted);font-family:var(--mono);}
+.footer-left{display:flex;align-items:center;gap:.4rem;}
+.footer-right{display:flex;align-items:center;gap:.35rem;opacity:.65;}
+
+/* Modal casilla */
+.modal-cas-box{background:var(--surface);border:1px solid var(--border2);border-radius:22px;padding:2rem 1.8rem;max-width:370px;width:100%;text-align:center;box-shadow:var(--shadow);animation:cardIn .3s cubic-bezier(.22,1,.36,1);}
+.modal-cas-icon{width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto .9rem;}
+.modal-cas-box h3{font-size:1.15rem;font-weight:800;margin-bottom:.35rem;}
+.modal-cas-box p{color:var(--muted);font-size:.86rem;margin-bottom:.9rem;}
+.mc-amount-row{background:var(--s2);border:1px solid var(--border2);border-radius:11px;padding:.75rem;font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:1.1rem;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+
+/* Toast */
+.toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:.65rem 1.2rem;font-size:.81rem;font-weight:600;box-shadow:var(--shadow);z-index:9999;display:flex;align-items:center;gap:.45rem;animation:toastIn .3s ease;white-space:nowrap;max-width:calc(100vw - 2rem);}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.toast-ok{color:var(--green);}
+.toast-err{color:var(--red);}
+.toast-info{color:var(--blue);}
+
+/* Responsive misc */
+@media(max-width:480px){
+  .hdr-inner{padding:.6rem .9rem;}
+  .hdr-title{max-width:130px;}
+  .hdr-badge{display:none;}
+  .hbtn{width:32px;height:32px;font-size:.8rem;}
+  .reto-main{padding:1rem .85rem 2rem;}
+  .hero-card{padding:1.1rem 1rem;}
+  .modal-box{padding:1.5rem 1.1rem;}
+}
+</style>
 </head>
 <body class="dark">
 
-<!-- ══════════ LOGIN ══════════ -->
-<div class="login-screen" id="login-screen">
+<!-- ══════ CARGA ══════ -->
+<div id="loading-screen">
+  <div class="loading-coin"><i class="fa-solid fa-piggy-bank"></i></div>
+  <div class="spin-ring"></div>
+  <p class="loading-txt">Iniciando...</p>
+</div>
+
+<!-- ══════ LOGIN ══════ -->
+<div class="hidden" id="login-screen">
   <canvas class="stars-canvas" id="stars-canvas"></canvas>
   <div class="login-card">
-    <div class="login-glow"></div>
-    <div class="coin-icon">
-      <div class="coin-inner"><i class="fa-solid fa-piggy-bank"></i></div>
-      <div class="coin-ring r1"></div>
-      <div class="coin-ring r2"></div>
-    </div>
+    <div class="login-logo"><i class="fa-solid fa-piggy-bank"></i></div>
     <h1 class="login-title">Reto Ahorro</h1>
-    <p class="login-sub">Ingresa tu PIN de acceso</p>
+    <p class="login-sub" id="login-sub">Selecciona cómo quieres entrar</p>
+    <div class="login-tabs">
+      <button class="ltab active" id="tab-admin" onclick="setLoginMode('admin')">
+        <i class="fa-solid fa-shield-halved"></i> Admin
+      </button>
+      <button class="ltab" id="tab-user" onclick="setLoginMode('user')">
+        <i class="fa-solid fa-user"></i> Participante
+      </button>
+    </div>
     <div class="pin-row">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
@@ -34,189 +402,72 @@
       <i class="fa-solid fa-circle-xmark"></i> PIN incorrecto
     </p>
     <div class="keypad">
-      <button class="kbtn" data-n="1">1</button>
-      <button class="kbtn" data-n="2">2</button>
-      <button class="kbtn" data-n="3">3</button>
-      <button class="kbtn" data-n="4">4</button>
-      <button class="kbtn" data-n="5">5</button>
-      <button class="kbtn" data-n="6">6</button>
-      <button class="kbtn" data-n="7">7</button>
-      <button class="kbtn" data-n="8">8</button>
-      <button class="kbtn" data-n="9">9</button>
-      <button class="kbtn ghost"></button>
-      <button class="kbtn" data-n="0">0</button>
+      <button class="kbtn" data-n="1">1</button><button class="kbtn" data-n="2">2</button><button class="kbtn" data-n="3">3</button>
+      <button class="kbtn" data-n="4">4</button><button class="kbtn" data-n="5">5</button><button class="kbtn" data-n="6">6</button>
+      <button class="kbtn" data-n="7">7</button><button class="kbtn" data-n="8">8</button><button class="kbtn" data-n="9">9</button>
+      <button class="kbtn ghost"></button><button class="kbtn" data-n="0">0</button>
       <button class="kbtn del" id="kbtn-del"><i class="fa-solid fa-delete-left"></i></button>
     </div>
-    <div class="login-credit">
-      <i class="fa-solid fa-code"></i> Desarrollado por <strong>Deison Bm</strong>
-    </div>
+    <div class="login-credit"><i class="fa-solid fa-code"></i> Desarrollado por <strong>Deison Bm</strong></div>
   </div>
 </div>
 
-<!-- ══════════ WIZARD ══════════ -->
-<div class="wizard-screen hidden" id="wizard-screen">
-  <div class="wiz-orbs">
-    <div class="orb o1"></div>
-    <div class="orb o2"></div>
-    <div class="orb o3"></div>
-  </div>
-  <div class="wiz-card">
-
-    <!-- Header -->
-    <div class="wiz-header">
-      <div class="wiz-logo"><i class="fa-solid fa-piggy-bank"></i></div>
-      <h2>Configura tu Reto</h2>
-      <p>Elige tu meta, casillas y plazo</p>
-    </div>
-
-    <!-- Indicador de pasos -->
-    <div class="wiz-steps-row">
-      <div class="wiz-step wiz-active" data-s="1">
-        <div class="ws-bubble"><i class="fa-solid fa-bullseye"></i></div>
-        <span>Meta</span>
-      </div>
-      <div class="ws-line"></div>
-      <div class="wiz-step wiz-pending" data-s="2">
-        <div class="ws-bubble"><i class="fa-regular fa-calendar"></i></div>
-        <span>Plazo</span>
-      </div>
-      <div class="ws-line"></div>
-      <div class="wiz-step wiz-pending" data-s="3">
-        <div class="ws-bubble"><i class="fa-solid fa-pen"></i></div>
-        <span>Nombre</span>
-      </div>
-    </div>
-
-    <!-- ── PASO 1: Meta y Casillas ── -->
-    <div class="wiz-panel" id="wiz-p1">
-      <div class="wiz-field">
-        <label class="wiz-label">
-          <i class="fa-solid fa-bullseye" style="color:var(--gold)"></i>
-          ¿Cuánto quieres ahorrar?
-        </label>
-        <div class="presets-grid">
-          <button class="preset-btn preset-meta" data-v="500000">$500K</button>
-          <button class="preset-btn preset-meta" data-v="1000000">$1M</button>
-          <button class="preset-btn preset-meta" data-v="2000000">$2M</button>
-          <button class="preset-btn preset-meta" data-v="5000000">$5M</button>
-          <button class="preset-btn preset-meta active" data-v="8000000">$8M</button>
-          <button class="preset-btn preset-meta" data-v="10000000">$10M</button>
-          <button class="preset-btn preset-meta" data-v="15000000">$15M</button>
-          <button class="preset-btn preset-meta" data-v="20000000">$20M</button>
+<!-- ══════ ADMIN ══════ -->
+<div class="hidden" id="admin-screen">
+  <header class="admin-hdr">
+    <div class="admin-hdr-inner">
+      <div class="admin-brand">
+        <div class="admin-coin"><i class="fa-solid fa-shield-halved"></i></div>
+        <div>
+          <div class="admin-title">Panel Admin</div>
+          <div class="admin-sub">Reto Ahorro · Deison Bm</div>
         </div>
-        <div class="wiz-input-wrap">
-          <span class="wiz-input-pre">$</span>
-          <input type="number" id="wiz-meta" value="8000000" min="10000" max="999999999" step="100000" placeholder="Ej: 8000000"/>
-          <span class="wiz-input-hint">COP</span>
-        </div>
-        <small class="wiz-hint">Mínimo $10.000 — puedes escribir cualquier valor</small>
       </div>
-
-      <div class="wiz-field">
-        <label class="wiz-label">
-          <i class="fa-solid fa-grip" style="color:var(--blue)"></i>
-          ¿Cuántas casillas?
-        </label>
-        <div class="presets-grid">
-          <button class="preset-btn preset-n" data-v="52">52</button>
-          <button class="preset-btn preset-n" data-v="100">100</button>
-          <button class="preset-btn preset-n" data-v="150">150</button>
-          <button class="preset-btn preset-n active" data-v="200">200</button>
-          <button class="preset-btn preset-n" data-v="250">250</button>
-          <button class="preset-btn preset-n" data-v="300">300</button>
-          <button class="preset-btn preset-n" data-v="365">365</button>
-          <button class="preset-btn preset-n" data-v="500">500</button>
-        </div>
-        <input type="number" id="wiz-n" value="200" min="5" max="500"/>
-        <small class="wiz-hint">Entre 5 y 500 casillas</small>
+      <div class="admin-hdr-actions">
+        <button class="hbtn" id="btn-admin-theme" title="Cambiar tema"><i class="fa-solid fa-sun" id="admin-theme-icon"></i></button>
+        <button class="hbtn warn" id="btn-admin-logout" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
-
-      <!-- Preview en vivo -->
-      <div class="wiz-preview">
-        <div class="prev-row"><i class="fa-solid fa-bullseye" style="color:var(--gold)"></i><span>Meta</span><b id="prev-meta">$8.000.000</b></div>
-        <div class="prev-row"><i class="fa-solid fa-grip" style="color:var(--blue)"></i><span>Casillas</span><b id="prev-n">200</b></div>
-        <div class="prev-row"><i class="fa-solid fa-chart-bar" style="color:var(--green)"></i><span>Promedio</span><b id="prev-avg">$40.000</b></div>
-        <div class="prev-row"><i class="fa-solid fa-calendar-day" style="color:var(--purp)"></i><span>Ritmo</span><b id="prev-ritmo">~17/mes</b></div>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-stats" id="admin-stats">
+      <div class="astat">
+        <div class="astat-ico" style="background:rgba(61,139,255,.15);color:var(--blue)"><i class="fa-solid fa-piggy-bank"></i></div>
+        <div><div class="astat-val" id="as-total">0</div><div class="astat-lbl">Retos activos</div></div>
+      </div>
+      <div class="astat">
+        <div class="astat-ico" style="background:rgba(0,229,160,.15);color:var(--green)"><i class="fa-solid fa-circle-check"></i></div>
+        <div><div class="astat-val" id="as-done">0</div><div class="astat-lbl">Casillas completadas</div></div>
+      </div>
+      <div class="astat">
+        <div class="astat-ico" style="background:rgba(245,200,66,.15);color:var(--gold)"><i class="fa-solid fa-coins"></i></div>
+        <div><div class="astat-val" id="as-saved">$0</div><div class="astat-lbl">Total ahorrado</div></div>
       </div>
     </div>
 
-    <!-- ── PASO 2: Plazo ── -->
-    <div class="wiz-panel hidden" id="wiz-p2">
-      <div class="wiz-field">
-        <label class="wiz-label">
-          <i class="fa-regular fa-calendar" style="color:var(--blue)"></i>
-          ¿En cuántos meses quieres completarlo?
-        </label>
-        <div class="presets-grid">
-          <button class="preset-btn preset-plazo" data-v="1">1 m</button>
-          <button class="preset-btn preset-plazo" data-v="3">3 m</button>
-          <button class="preset-btn preset-plazo" data-v="6">6 m</button>
-          <button class="preset-btn preset-plazo active" data-v="12">12 m</button>
-          <button class="preset-btn preset-plazo" data-v="18">18 m</button>
-          <button class="preset-btn preset-plazo" data-v="24">24 m</button>
-          <button class="preset-btn preset-plazo" data-v="36">36 m</button>
-          <button class="preset-btn preset-plazo" data-v="60">60 m</button>
-        </div>
-        <div class="wiz-input-wrap">
-          <input type="number" id="wiz-plazo" value="12" min="1" max="120"/>
-          <span class="wiz-input-hint">meses</span>
-        </div>
-        <small class="wiz-hint">Entre 1 y 120 meses</small>
-      </div>
-
-      <div class="wiz-preview">
-        <div class="prev-row"><i class="fa-solid fa-bullseye" style="color:var(--gold)"></i><span>Meta</span><b id="prev-meta2">—</b></div>
-        <div class="prev-row"><i class="fa-solid fa-grip" style="color:var(--blue)"></i><span>Casillas</span><b id="prev-n2">—</b></div>
-        <div class="prev-row"><i class="fa-regular fa-calendar" style="color:var(--green)"></i><span>Plazo</span><b id="prev-plazo">—</b></div>
-        <div class="prev-row"><i class="fa-solid fa-calendar-day" style="color:var(--purp)"></i><span>Ritmo</span><b id="prev-ritmo2">—</b></div>
+    <div class="section-head">
+      <div class="section-title"><i class="fa-solid fa-list-check" style="color:var(--blue)"></i> Mis Retos</div>
+      <button class="btn-new" id="btn-nuevo-reto"><i class="fa-solid fa-plus"></i> Nuevo reto</button>
+    </div>
+    <div class="retos-grid" id="retos-grid">
+      <div class="empty-state" id="empty-retos">
+        <div class="empty-ico"><i class="fa-solid fa-piggy-bank"></i></div>
+        <p>Aún no tienes retos.<br>Crea uno para comenzar.</p>
       </div>
     </div>
-
-    <!-- ── PASO 3: Nombre y Resumen ── -->
-    <div class="wiz-panel hidden" id="wiz-p3">
-      <div class="wiz-field">
-        <label class="wiz-label">
-          <i class="fa-solid fa-pen" style="color:var(--gold)"></i>
-          ¿Cómo se llama tu reto?
-        </label>
-        <input type="text" id="wiz-nombre" placeholder="Ej: Vacaciones 2025, Mi casa, Moto…" maxlength="40"/>
-        <small class="wiz-hint">Dale un nombre motivador</small>
-      </div>
-
-      <div class="wiz-summary">
-        <div class="sum-title"><i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Resumen del reto</div>
-        <div class="sum-row"><span>Nombre</span><b id="sum-nombre">—</b></div>
-        <div class="sum-row"><span>Meta total</span><b id="sum-meta">—</b></div>
-        <div class="sum-row"><span>Casillas</span><b id="sum-n">—</b></div>
-        <div class="sum-row"><span>Plazo</span><b id="sum-plazo">—</b></div>
-        <div class="sum-row"><span>Prom. por casilla</span><b id="sum-avg">—</b></div>
-      </div>
-    </div>
-
-    <p class="wiz-err hidden" id="wiz-err"><i class="fa-solid fa-triangle-exclamation"></i> <span id="wiz-err-txt"></span></p>
-
-    <div class="wiz-actions">
-      <button class="wiz-btn-back" id="wiz-back" style="visibility:hidden">
-        <i class="fa-solid fa-arrow-left"></i> Atrás
-      </button>
-      <button class="wiz-btn-next" id="wiz-next">Siguiente →</button>
-    </div>
-  </div>
+  </main>
 </div>
 
-<!-- ══════════ APP ══════════ -->
-<div class="app-screen hidden" id="app-screen">
+<!-- ══════ RETO (participante) ══════ -->
+<div class="hidden" id="reto-screen">
   <div class="bg-orbs">
-    <div class="orb o1"></div>
-    <div class="orb o2"></div>
-    <div class="orb o3"></div>
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
   </div>
-
   <header class="hdr">
     <div class="hdr-inner">
       <div class="hdr-brand">
         <div class="hdr-coin"><i class="fa-solid fa-piggy-bank"></i></div>
-        <div class="hdr-brand-text">
+        <div>
           <div class="hdr-title" id="hdr-nombre">Reto Ahorro</div>
           <div class="hdr-badge">
             <span class="badge-dot" id="badge-dot"></span>
@@ -225,25 +476,12 @@
         </div>
       </div>
       <div class="hdr-actions">
-        <button class="hbtn" id="btn-theme" title="Cambiar tema">
-          <i class="fa-solid fa-sun" id="theme-icon"></i>
-        </button>
-        <button class="hbtn" id="btn-config" title="Nuevo reto">
-          <i class="fa-solid fa-sliders"></i>
-        </button>
-        <button class="hbtn warn" id="btn-reset" title="Reiniciar progreso">
-          <i class="fa-solid fa-rotate-left"></i>
-        </button>
-        <button class="hbtn" id="btn-logout" title="Cerrar sesión">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
+        <button class="hbtn" id="btn-reto-theme"><i class="fa-solid fa-sun" id="reto-theme-icon"></i></button>
+        <button class="hbtn warn" id="btn-reto-logout"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
     </div>
   </header>
-
-  <main class="app-main">
-
-    <!-- HERO -->
+  <main class="reto-main">
     <div class="hero-section">
       <div class="hero-card">
         <div class="hero-bg-text">$</div>
@@ -252,176 +490,1105 @@
           <div class="hero-amount" id="hero-amount">$0</div>
           <div class="hero-sub" id="hero-meta">Meta: —</div>
         </div>
-        <div class="hero-ring-wrap">
-          <svg class="hero-ring" viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#3d8bff"/>
-                <stop offset="100%" stop-color="#00e5a0"/>
-              </linearGradient>
-            </defs>
-            <circle class="ring-track" cx="50" cy="50" r="42"/>
-            <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="42"
-              stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
-            <text class="ring-pct" x="50" y="47" text-anchor="middle" id="ring-pct">0%</text>
-            <text class="ring-sub-txt" x="50" y="58" text-anchor="middle">progreso</text>
-          </svg>
-        </div>
+        <svg class="hero-ring" viewBox="0 0 100 100">
+          <defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3d8bff"/><stop offset="100%" stop-color="#00e5a0"/>
+          </linearGradient></defs>
+          <circle class="ring-track" cx="50" cy="50" r="42"/>
+          <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+          <text class="ring-pct" x="50" y="47" text-anchor="middle" id="ring-pct">0%</text>
+          <text class="ring-sub-txt" x="50" y="58" text-anchor="middle">progreso</text>
+        </svg>
       </div>
       <div class="mini-stats">
         <div class="mini-card" style="--ic:var(--gold)">
           <div class="mini-ico-wrap"><i class="fa-solid fa-arrow-trend-down"></i></div>
-          <div class="mini-data">
-            <span class="mini-lbl">Faltante</span>
-            <span class="mini-val gold" id="stat-left">—</span>
-          </div>
+          <div class="mini-data"><span class="mini-lbl">Faltante</span><span class="mini-val gold" id="stat-left">—</span></div>
         </div>
         <div class="mini-card" style="--ic:var(--green)">
           <div class="mini-ico-wrap"><i class="fa-solid fa-circle-check"></i></div>
-          <div class="mini-data">
-            <span class="mini-lbl">Completadas</span>
-            <span class="mini-val green">
-              <span id="stat-done">0</span>/<span id="stat-total-n">—</span>
-            </span>
-          </div>
+          <div class="mini-data"><span class="mini-lbl">Completadas</span><span class="mini-val green"><span id="stat-done">0</span>/<span id="stat-total-n">—</span></span></div>
         </div>
         <div class="mini-card" style="--ic:var(--blue)">
           <div class="mini-ico-wrap"><i class="fa-regular fa-clock"></i></div>
-          <div class="mini-data">
-            <span class="mini-lbl">Pendientes</span>
-            <span class="mini-val" id="stat-pend">—</span>
-          </div>
+          <div class="mini-data"><span class="mini-lbl">Pendientes</span><span class="mini-val" id="stat-pend">—</span></div>
         </div>
       </div>
     </div>
 
-    <!-- PROGRESO -->
     <div class="prog-section">
       <div class="prog-head">
-        <span class="prog-label">
-          <i class="fa-solid fa-chart-line"></i> Progreso del reto
-        </span>
-        <span class="prog-nums">
-          <b id="prog-done-n">0</b> / <span id="prog-total-n">—</span> casillas
-        </span>
+        <span class="prog-label"><i class="fa-solid fa-chart-line" style="color:var(--blue)"></i> Progreso</span>
+        <span class="prog-nums"><b id="prog-done-n">0</b> / <span id="prog-total-n">—</span> casillas</span>
       </div>
       <div class="prog-rail">
-        <div class="prog-fill" id="prog-fill" style="width:0%">
-          <div class="fill-glimmer"></div>
-        </div>
+        <div class="prog-fill" id="prog-fill" style="width:0%"><div class="fill-glimmer"></div></div>
         <div class="milestone" style="left:25%"><span class="ms-label">25%</span></div>
         <div class="milestone" style="left:50%"><span class="ms-label">50%</span></div>
         <div class="milestone" style="left:75%"><span class="ms-label">75%</span></div>
       </div>
     </div>
 
-    <!-- FILTROS -->
     <div class="toolbar">
       <div class="filter-row">
-        <button class="fpill active" data-f="all">
-          <i class="fa-solid fa-grip"></i> Todas <em id="fc-all">—</em>
-        </button>
-        <button class="fpill" data-f="pending">
-          <i class="fa-regular fa-clock"></i> Pendientes <em id="fc-pend">—</em>
-        </button>
-        <button class="fpill" data-f="done">
-          <i class="fa-solid fa-circle-check"></i> Completadas <em id="fc-done">0</em>
-        </button>
+        <button class="fpill active" data-f="all"><i class="fa-solid fa-grip"></i> Todas <em id="fc-all">—</em></button>
+        <button class="fpill" data-f="pending"><i class="fa-regular fa-clock"></i> Pendientes <em id="fc-pend">—</em></button>
+        <button class="fpill" data-f="done"><i class="fa-solid fa-circle-check"></i> Completadas <em id="fc-done">0</em></button>
       </div>
       <div class="legend">
         <span class="leg-item"><span class="leg-dot" style="background:#00e5a0"></span>Bajo</span>
-        <span class="leg-item"><span class="leg-dot" style="background:#3d8bff"></span>Medio-bajo</span>
-        <span class="leg-item"><span class="leg-dot" style="background:#a78bfa"></span>Medio</span>
-        <span class="leg-item"><span class="leg-dot" style="background:#fb923c"></span>Alto</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#3d8bff"></span>Medio</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#a78bfa"></span>Alto</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#fb923c"></span>Grande</span>
         <span class="leg-item"><span class="leg-dot" style="background:#f472b6"></span>Premium</span>
       </div>
     </div>
 
-    <!-- GRID -->
     <div class="grid-section">
-      <div class="grid-loader hidden" id="grid-loader">
-        <div class="spin-ring"></div>
-        <span>Sincronizando...</span>
-      </div>
+      <div class="grid-loader hidden" id="grid-loader"><div class="spin-ring"></div><span>Sincronizando...</span></div>
       <div class="grid" id="grid"></div>
     </div>
 
     <footer class="app-footer">
-      <div class="footer-left">
-        <i class="fa-solid fa-circle-nodes"></i>
-        <span id="footer-status">Modo local</span>
-      </div>
-      <div class="footer-right">
-        <i class="fa-solid fa-code"></i><strong>Deison Bm</strong>
-      </div>
+      <div class="footer-left"><i class="fa-solid fa-circle-nodes" style="color:var(--green)"></i><span id="footer-status">Conectando...</span></div>
+      <div class="footer-right"><i class="fa-solid fa-code" style="color:var(--blue)"></i><strong>Deison Bm</strong></div>
     </footer>
   </main>
 </div>
 
-<!-- MODAL: confirmar casilla -->
-<div class="modal-bg hidden" id="modal-cas">
-  <div class="modal-box">
-    <div class="modal-icon-wrap" id="mc-icon-wrap">
-      <i class="fa-solid fa-coins"></i>
+<!-- ══════ MODAL: Crear/Editar reto ══════ -->
+<div class="modal-bg hidden" id="modal-reto">
+  <div class="modal-box wide">
+    <div class="modal-title" id="modal-reto-title"><i class="fa-solid fa-plus" style="color:var(--blue)"></i> Nuevo Reto</div>
+    <div class="form-err hidden" id="reto-err"><i class="fa-solid fa-triangle-exclamation"></i> <span id="reto-err-txt"></span></div>
+
+    <div class="form-field">
+      <label class="form-label">Nombre del reto</label>
+      <input class="form-input" id="f-nombre" type="text" placeholder="Ej: Vacaciones 2025, Mi moto…" maxlength="40"/>
     </div>
+    <div class="form-field">
+      <label class="form-label">Meta total (COP)</label>
+      <input class="form-input" id="f-meta" type="number" placeholder="Ej: 8000000" min="10000" step="50000" oninput="calcPreview()"/>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Monto mínimo por casilla</label>
+        <input class="form-input" id="f-min" type="number" placeholder="Ej: 10000" min="500" step="500" oninput="calcPreview()"/>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Monto máximo por casilla</label>
+        <input class="form-input" id="f-max" type="number" placeholder="Ej: 200000" min="1000" step="500" oninput="calcPreview()"/>
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Plazo (meses)</label>
+      <input class="form-input" id="f-plazo" type="number" placeholder="Ej: 12" min="1" max="120" value="12" oninput="calcPreview()"/>
+      <span class="form-hint">Casillas = plazo en días (1 mes = 30 días)</span>
+    </div>
+
+    <!-- Preview calculado -->
+    <div class="calc-preview" id="calc-preview">
+      <div class="cp-row"><i class="fa-solid fa-grip" style="color:var(--blue)"></i><span>Casillas</span><b id="cp-n">—</b></div>
+      <div class="cp-row"><i class="fa-solid fa-chart-bar" style="color:var(--green)"></i><span>Promedio</span><b id="cp-avg">—</b></div>
+      <div class="cp-row"><i class="fa-solid fa-arrow-down" style="color:var(--purp)"></i><span>Mín casilla</span><b id="cp-min">—</b></div>
+      <div class="cp-row"><i class="fa-solid fa-arrow-up" style="color:var(--gold)"></i><span>Máx casilla</span><b id="cp-max">—</b></div>
+      <div id="cp-dist"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btn-reto-cancel">Cancelar</button>
+      <button class="btn-save" id="btn-reto-save"><i class="fa-solid fa-floppy-disk"></i> Guardar reto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: Confirmar casilla ══════ -->
+<div class="modal-bg hidden" id="modal-cas">
+  <div class="modal-cas-box">
+    <div class="modal-cas-icon" id="mc-icon"><i class="fa-solid fa-coins"></i></div>
     <h3 id="mc-title">Confirmar</h3>
     <p id="mc-body">¿Confirmás que guardaste este dinero?</p>
-    <div class="mc-amount-row" id="mc-amount-row"></div>
+    <div class="mc-amount-row" id="mc-amount"></div>
     <div class="modal-row">
-      <button class="m-cancel" id="mc-cancel">
-        <i class="fa-solid fa-xmark"></i> Cancelar
-      </button>
-      <button class="m-confirm m-green" id="mc-ok">
-        <i class="fa-solid fa-check"></i> Confirmar
-      </button>
+      <button class="m-cancel" id="mc-cancel"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="m-confirm" style="background:var(--green);color:#000" id="mc-ok"><i class="fa-solid fa-check"></i> Confirmar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: reiniciar progreso -->
+<!-- ══════ MODAL: Eliminar reto ══════ -->
+<div class="modal-bg hidden" id="modal-del">
+  <div class="modal-box">
+    <div class="modal-icon-wrap" style="background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.3);color:var(--red)"><i class="fa-solid fa-trash"></i></div>
+    <h3>Eliminar Reto</h3>
+    <p class="modal-p">Se eliminará <strong id="del-nombre">este reto</strong> y todo su progreso permanentemente.</p>
+    <div class="modal-row">
+      <button class="m-cancel" id="del-cancel"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="m-confirm" id="del-ok"><i class="fa-solid fa-trash"></i> Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL: Reiniciar progreso ══════ -->
 <div class="modal-bg hidden" id="modal-reset">
   <div class="modal-box">
-    <div class="modal-icon-wrap">
-      <i class="fa-solid fa-rotate-left"></i>
-    </div>
+    <div class="modal-icon-wrap" style="background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.3);color:var(--purp)"><i class="fa-solid fa-rotate-left"></i></div>
     <h3>Reiniciar Progreso</h3>
-    <p>Se borra el progreso actual.<br>La configuración del reto se mantiene.</p>
+    <p class="modal-p">Se borrará el progreso de este reto. La configuración se mantiene.</p>
     <div class="modal-row">
-      <button class="m-cancel" id="mr-cancel">
-        <i class="fa-solid fa-xmark"></i> Cancelar
-      </button>
-      <button class="m-confirm" id="mr-ok">
-        <i class="fa-solid fa-rotate-left"></i> Reiniciar
-      </button>
+      <button class="m-cancel" id="reset-cancel"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="m-confirm" style="background:var(--purp)" id="reset-ok"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: nuevo reto -->
-<div class="modal-bg hidden" id="modal-reconfig">
-  <div class="modal-box">
-    <div class="modal-icon-wrap" style="background:rgba(245,200,66,0.12);border-color:rgba(245,200,66,0.3);color:var(--gold)">
-      <i class="fa-solid fa-sliders"></i>
-    </div>
-    <h3>Crear Nuevo Reto</h3>
-    <p>Se borrará toda la configuración y el progreso. Podrás configurar un reto completamente nuevo.</p>
-    <div class="modal-row">
-      <button class="m-cancel" id="mrc-cancel">
-        <i class="fa-solid fa-xmark"></i> Cancelar
-      </button>
-      <button class="m-confirm" style="background:var(--gold);color:#000" id="mrc-ok">
-        <i class="fa-solid fa-sliders"></i> Nuevo Reto
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
+<!-- ══════ TOAST ══════ -->
 <div class="toast hidden" id="toast">
-  <i class="fa-solid fa-circle-check toast-icon"></i>
-  <span id="toast-msg">Guardado</span>
+  <i class="fa-solid fa-circle-check toast-ok" id="toast-icon"></i>
+  <span id="toast-msg">OK</span>
 </div>
 
-<script src="app.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONFIGURACIÓN FIREBASE — PEGA TU CONFIG AQUÍ
+═══════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDlfkGoQqtPZsk93CQRUFyLGHRu0lm6vwc",
+  authDomain: "reto-ahorro-a05b1.firebaseapp.com",
+  projectId: "reto-ahorro-a05b1",
+  storageBucket: "reto-ahorro-a05b1.firebasestorage.app",
+  messagingSenderId: "622538392610",
+  appId: "1:622538392610:web:3d4376a7a5c2e78867f67b"
+};
+
+
+/* ═══════════════════════════════════════════════════════
+   CONFIGURACIÓN DE LA APP
+═══════════════════════════════════════════════════════ */
+const ADMIN_PIN = '2323';   // PIN del administrador — CÁMBIALO
+const BASE_URL  = window.location.origin + window.location.pathname; // URL base para generar links
+
+/* ═══════════════════════════════════════════════════════
+   CONSTANTES
+═══════════════════════════════════════════════════════ */
+const LS_THEME   = 'reto_theme';
+const LS_SESSION = 'reto_session'; // {role:'admin'} o {role:'user', retoId:'xxx'}
+const _H = s => [...s].reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0, 5381);
+const ADMIN_HASH = _H(ADMIN_PIN);
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════════════════ */
+let db           = null;
+let loginMode    = 'admin';  // 'admin' | 'user'
+let pinBuf       = '';
+let currentReto  = null;     // CFG del reto activo
+let CASILLAS     = [];
+let done         = {};
+let filtro       = 'all';
+let pendingId    = null;
+let unsub        = null;     // listener Firestore
+let editingId    = null;     // ID del reto siendo editado
+let deletingId   = null;
+let _tt          = null;
+
+/* ═══════════════════════════════════════════════════════
+   GENERADOR DE MONTOS con rango mín/máx
+═══════════════════════════════════════════════════════ */
+function roundNice(v) {
+  if (v<=0)      return 500;
+  if (v<2000)    return Math.max(500,Math.round(v/500)*500);
+  if (v<10000)   return Math.round(v/1000)*1000;
+  if (v<50000)   return Math.round(v/5000)*5000;
+  if (v<200000)  return Math.round(v/10000)*10000;
+  if (v<1000000) return Math.round(v/50000)*50000;
+  return Math.round(v/100000)*100000;
+}
+
+// Días según plazo en meses (1 mes = 30 días)
+function calcDias(plazo) {
+  return Math.round(plazo * 30);
+}
+
+/*
+ * Genera montos con POCOS valores distintos y MUCHAS repeticiones.
+ * Estrategia:
+ *  1. Crear 5-8 "niveles" de monto dentro del rango [minV, maxV]
+ *  2. Asignar cantidades a cada nivel (más casillas en los niveles bajos)
+ *  3. Ajustar cantidades hasta que la suma sea exactamente meta
+ *  4. Shuffle reproducible con seed
+ */
+function generateMontos(meta, minV, maxV, seed, plazo) {
+  const n = calcDias(plazo || 12); // total de casillas = días del plazo
+
+  let s = (seed ^ 0xdeadbeef) >>> 0;
+  const rand = () => { s=(s*1664525+1013904223)>>>0; return s/0x100000000; };
+
+  // ── 1. Crear niveles de monto ──────────────────────
+  // Entre 5 y 8 niveles según el rango
+  const rango = maxV - minV;
+  const numNiveles = rango < 50000 ? 4 : rango < 200000 ? 5 : rango < 500000 ? 6 : 7;
+
+  const niveles = [];
+  for (let i = 0; i < numNiveles; i++) {
+    const t = i / (numNiveles - 1); // 0 a 1
+    niveles.push(roundNice(minV + t * rango));
+  }
+  // Eliminar duplicados que pueden quedar por redondeo
+  const nivelesUnicos = [...new Set(niveles)];
+
+  // ── 2. Pesos: más casillas en los niveles bajos ────
+  // Distribución piramidal: nivel 0 tiene más peso, el último menos
+  const pesos = nivelesUnicos.map((_, i) => {
+    const t = i / (nivelesUnicos.length - 1);
+    return Math.max(1, Math.round((1 - t * 0.65) * 10)); // peso de 10 a 3.5
+  });
+  const sumPesos = pesos.reduce((a,b)=>a+b,0);
+
+  // ── 3. Asignar cantidad inicial proporcional al peso ──
+  let cantidades = pesos.map(p => Math.max(1, Math.round(p / sumPesos * n)));
+
+  // Ajustar total de casillas
+  let totalActual = cantidades.reduce((a,b)=>a+b,0);
+  while (totalActual !== n) {
+    const diff = n - totalActual;
+    // Agregar/quitar al nivel más frecuente (el primero/último según dirección)
+    const idx = diff > 0 ? 0 : cantidades.indexOf(Math.max(...cantidades));
+    cantidades[idx] += diff > 0 ? 1 : -1;
+    if (cantidades[idx] < 1) { cantidades[idx]=1; }
+    totalActual = cantidades.reduce((a,b)=>a+b,0);
+  }
+
+  // ── 4. Calcular suma actual y ajustar ─────────────
+  let sumaActual = nivelesUnicos.reduce((s,v,i) => s + v*cantidades[i], 0);
+  let diff = meta - sumaActual;
+
+  // Intentar ajustar redistribuyendo cantidades entre niveles
+  for (let iter = 0; iter < 200 && Math.abs(diff) > 0; iter++) {
+    if (diff > 0) {
+      // Sumar: agregar casillas al nivel más alto posible sin romper balance
+      const idx = nivelesUnicos.length - 1;
+      cantidades[idx]++;
+      // Quitar del nivel más bajo para mantener n total
+      const quitarIdx = cantidades.findIndex((c,i) => c > 1 && i !== idx);
+      if (quitarIdx >= 0) cantidades[quitarIdx]--;
+    } else {
+      // Restar: quitar casillas del nivel más alto
+      const idx = nivelesUnicos.length - 1;
+      if (cantidades[idx] > 1) {
+        cantidades[idx]--;
+        cantidades[0]++;
+      }
+    }
+    sumaActual = nivelesUnicos.reduce((s,v,i) => s + v*cantidades[i], 0);
+    diff = meta - sumaActual;
+  }
+
+  // ── 5. Corrección final: ajustar el nivel mayor ───
+  // Si queda un residuo pequeño, modificar la cantidad del nivel más alto
+  sumaActual = nivelesUnicos.reduce((s,v,i) => s + v*cantidades[i], 0);
+  diff = meta - sumaActual;
+  if (diff !== 0) {
+    // Crear una casilla "especial" ajustada si el residuo es significativo
+    // o simplemente absorberlo en el nivel más cercano
+    const nivelAjuste = roundNice(nivelesUnicos[nivelesUnicos.length-1] + diff / Math.max(1, cantidades[cantidades.length-1]));
+    if (nivelAjuste >= minV && nivelAjuste <= maxV * 1.1) {
+      nivelesUnicos[nivelesUnicos.length-1] = nivelAjuste;
+    }
+  }
+
+  // ── 6. Expandir a array de montos ─────────────────
+  let montos = [];
+  nivelesUnicos.forEach((v, i) => {
+    for (let k = 0; k < cantidades[i]; k++) montos.push(v);
+  });
+
+  // Asegurar que el total sea n exacto
+  while (montos.length > n) montos.pop();
+  while (montos.length < n) montos.push(nivelesUnicos[0]);
+
+  // ── 7. Shuffle reproducible ───────────────────────
+  for (let i = montos.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [montos[i], montos[j]] = [montos[j], montos[i]];
+  }
+
+  return montos;
+}
+
+// Para el preview del admin: devuelve los niveles con cantidades
+function calcDistribucion(meta, minV, maxV, plazo) {
+  const n = calcDias(plazo || 12);
+  const rango = maxV - minV;
+  const numNiveles = rango < 50000 ? 4 : rango < 200000 ? 5 : rango < 500000 ? 6 : 7;
+  const niveles = [];
+  for (let i = 0; i < numNiveles; i++) {
+    const t = i / (numNiveles - 1);
+    niveles.push(roundNice(minV + t * rango));
+  }
+  const nivelesUnicos = [...new Set(niveles)];
+  const pesos = nivelesUnicos.map((_, i) => {
+    const t = i / (nivelesUnicos.length - 1);
+    return Math.max(1, Math.round((1 - t * 0.65) * 10));
+  });
+  const sumPesos = pesos.reduce((a,b)=>a+b,0);
+  const cantidades = pesos.map(p => Math.max(1, Math.round(p / sumPesos * n)));
+  // Ajustar total
+  let tot = cantidades.reduce((a,b)=>a+b,0);
+  let di = n - tot;
+  if (di > 0) cantidades[0] += di;
+  else if (di < 0) cantidades[cantidades.length-1] = Math.max(1, cantidades[cantidades.length-1]+di);
+  return nivelesUnicos.map((v, i) => ({monto: v, cantidad: cantidades[i]}));
+}
+
+/* ═══════════════════════════════════════════════════════
+   ARRANQUE
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  applyTheme();
+  initStars();
+  await initFirebase();
+  checkAutoEntry();
+});
+
+async function initFirebase() {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    db.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED });
+  } catch(e) {
+    console.error('Firebase error:', e);
+    toast('Error al conectar Firebase. Revisa la configuración.', 'err');
+  }
+}
+
+// Detectar si la URL tiene ?reto=ID y entrar directamente
+function checkAutoEntry() {
+  const params = new URLSearchParams(window.location.search);
+  const retoId = params.get('reto');
+  if (retoId) {
+    // Entrar directo al reto sin PIN (el link es el "acceso")
+    hideLoading();
+    enterReto(retoId);
+    return;
+  }
+
+  // Verificar sesión guardada
+  const session = loadSession();
+  if (session?.role === 'admin') {
+    hideLoading();
+    showAdmin();
+    return;
+  }
+
+  hideLoading();
+  showLogin();
+}
+
+/* ═══════════════════════════════════════════════════════
+   SESIÓN
+═══════════════════════════════════════════════════════ */
+function saveSession(data) { try{sessionStorage.setItem(LS_SESSION,JSON.stringify(data));}catch(_){} }
+function loadSession()     { try{return JSON.parse(sessionStorage.getItem(LS_SESSION));}catch(_){return null;} }
+function clearSession()    { sessionStorage.removeItem(LS_SESSION); }
+
+/* ═══════════════════════════════════════════════════════
+   LOADING
+═══════════════════════════════════════════════════════ */
+function showLoading(txt='Cargando...') {
+  $('loading-screen').classList.remove('hidden');
+  const tx=$('loading-screen').querySelector('.loading-txt');
+  if(tx) tx.textContent=txt;
+}
+function hideLoading() { $('loading-screen').classList.add('hidden'); }
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════════════════ */
+function showLogin() {
+  hide('admin-screen'); hide('reto-screen');
+  show('login-screen');
+  setLoginMode('admin');
+  initKeypad();
+}
+
+function setLoginMode(mode) {
+  loginMode = mode;
+  $('tab-admin').classList.toggle('active', mode==='admin');
+  $('tab-user').classList.toggle('active',  mode==='user');
+  $('login-sub').textContent = mode==='admin'
+    ? 'Ingresa el PIN de administrador'
+    : 'Ingresa el PIN del reto';
+  pinBuf=''; renderDots(); hide('pin-msg');
+}
+
+function initKeypad() {
+  document.querySelectorAll('.kbtn[data-n]').forEach(b=>{
+    // Limpiar listeners previos clonando el nodo
+    const nb=b.cloneNode(true);
+    b.parentNode.replaceChild(nb,b);
+    nb.addEventListener('click',()=>pressKey(nb.dataset.n));
+  });
+  const delBtn=$('kbtn-del');
+  const nd=delBtn.cloneNode(true);
+  delBtn.parentNode.replaceChild(nd,delBtn);
+  nd.addEventListener('click',delKey);
+
+  document.addEventListener('keydown', handleKeydown);
+}
+
+function handleKeydown(e) {
+  if (!$('login-screen').classList.contains('hidden') && !$('login-screen').classList.contains('hidden')) {
+    if (e.key>='0'&&e.key<='9') pressKey(e.key);
+    if (e.key==='Backspace') delKey();
+  }
+}
+
+function pressKey(n) {
+  if(pinBuf.length>=4) return;
+  pinBuf+=n; renderDots();
+  if(pinBuf.length===4) setTimeout(checkPin,180);
+}
+function delKey() { pinBuf=pinBuf.slice(0,-1); renderDots(); }
+function renderDots() {
+  for(let i=0;i<4;i++){
+    const d=$(`pd${i}`);
+    d.classList.toggle('filled',i<pinBuf.length);
+    d.classList.remove('shake');
+  }
+}
+function checkPin() {
+  if (loginMode==='admin') {
+    if (_H(pinBuf)===ADMIN_HASH) {
+      greenDots();
+      setTimeout(()=>{ hide('login-screen'); saveSession({role:'admin'}); showAdmin(); },420);
+    } else wrongPin();
+  } else {
+    // Modo usuario: no hay PIN global, mostrar mensaje
+    wrongPin('Los participantes entran por el link del reto');
+  }
+}
+
+function greenDots() {
+  for(let i=0;i<4;i++){
+    const d=$(`pd${i}`);
+    Object.assign(d.style,{background:'#00e5a0',borderColor:'#00e5a0',boxShadow:'0 0 12px #00e5a0'});
+  }
+}
+function wrongPin(msg='PIN incorrecto') {
+  for(let i=0;i<4;i++) $(`pd${i}`).classList.add('shake');
+  const el=$('pin-msg');
+  el.innerHTML=`<i class="fa-solid fa-circle-xmark"></i> ${msg}`;
+  el.classList.remove('hidden');
+  pinBuf='';
+  setTimeout(()=>{ renderDots(); el.classList.add('hidden'); },1500);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ADMIN — PANEL PRINCIPAL
+═══════════════════════════════════════════════════════ */
+async function showAdmin() {
+  show('admin-screen'); hide('reto-screen'); hide('login-screen');
+  updateThemeIcons();
+  bindAdminEvents();
+  await loadRetos();
+}
+
+function bindAdminEvents() {
+  $('btn-admin-theme').onclick = toggleTheme;
+  $('btn-admin-logout').onclick = () => { clearSession(); hide('admin-screen'); showLogin(); };
+  $('btn-nuevo-reto').onclick = () => openModalReto(null);
+  $('btn-reto-cancel').onclick = closeModalReto;
+  $('btn-reto-save').onclick = saveReto;
+  $('del-cancel').onclick = ()=>hide('modal-del');
+  $('del-ok').onclick = confirmDelete;
+  $('reset-cancel').onclick = ()=>hide('modal-reset');
+  $('reset-ok').onclick = confirmReset;
+
+  // Cerrar modales al click en fondo
+  ['modal-reto','modal-del','modal-reset'].forEach(id=>{
+    $(id).addEventListener('click',e=>{ if(e.target.id===id) $(id).classList.add('hidden'); });
+  });
+}
+
+/* ── Cargar todos los retos desde Firestore ── */
+async function loadRetos() {
+  showLoading('Cargando retos...');
+  try {
+    const snap = await db.collection('retos').orderBy('fechaCreacion','desc').get();
+    const retos = snap.docs.map(d=>({id:d.id, ...d.data()}));
+
+    // Cargar progreso de cada reto
+    const retosConProg = await Promise.all(retos.map(async r=>{
+      const cSnap = await db.collection('retos').doc(r.id).collection('casillas').get();
+      const total = calcDias(r.plazo || 12);
+      const done  = cSnap.docs.filter(d=>d.data().completada).length;
+      const saved = cSnap.docs.filter(d=>d.data().completada).reduce((s,d)=>s+(d.data().monto||0),0);
+      return {...r, totalCasillas:total, doneCasillas:done, savedAmount:saved};
+    }));
+
+    hideLoading();
+    renderAdminPanel(retosConProg);
+  } catch(e) {
+    hideLoading();
+    console.error(e);
+    toast('Error al cargar retos','err');
+  }
+}
+
+function renderAdminPanel(retos) {
+  // Stats globales
+  const totalDone  = retos.reduce((s,r)=>s+r.doneCasillas,0);
+  const totalSaved = retos.reduce((s,r)=>s+r.savedAmount,0);
+  setText('as-total', retos.length);
+  setText('as-done',  totalDone);
+  setText('as-saved', fmt(totalSaved));
+
+  // Grid de retos
+  const grid=$('retos-grid');
+  if (retos.length===0) {
+    grid.innerHTML='<div class="empty-state" id="empty-retos"><div class="empty-ico"><i class="fa-solid fa-piggy-bank"></i></div><p>Aún no tienes retos.<br>Crea uno para comenzar.</p></div>';
+    return;
+  }
+  grid.innerHTML='';
+  const colors=['#3d8bff','#00e5a0','#f5c842','#a78bfa','#fb923c','#f472b6'];
+  retos.forEach((r,idx)=>{
+    const color = colors[idx % colors.length];
+    const pct   = r.totalCasillas>0 ? Math.min(100,r.doneCasillas/r.totalCasillas*100) : 0;
+    const link  = `${BASE_URL}?reto=${r.id}`;
+    const fecha = r.fechaCreacion ? new Date(r.fechaCreacion).toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'}) : '—';
+
+    const card = document.createElement('div');
+    card.className='reto-card';
+    card.innerHTML=`
+      <div class="reto-card-accent" style="background:${color}"></div>
+      <div class="reto-card-header">
+        <div>
+          <div class="reto-card-name">${esc(r.nombre)}</div>
+          <div class="reto-card-date"><i class="fa-regular fa-calendar"></i> ${fecha}</div>
+        </div>
+        <div class="reto-card-actions">
+          <button class="rca-btn" title="Editar" onclick="openModalReto('${r.id}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="rca-btn" title="Ver reto" onclick="window.open('${link}','_blank')"><i class="fa-solid fa-eye"></i></button>
+          <button class="rca-btn del-btn" title="Eliminar" onclick="askDelete('${r.id}','${esc(r.nombre)}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="reto-card-meta">
+        <div class="rcm-item"><div class="rcm-lbl">Meta</div><div class="rcm-val">${fmt(r.meta)}</div></div>
+        <div class="rcm-item"><div class="rcm-lbl">Casillas</div><div class="rcm-val">${r.doneCasillas}/${r.totalCasillas}</div></div>
+        <div class="rcm-item"><div class="rcm-lbl">Rango</div><div class="rcm-val">${fmt(r.minV)}–${fmt(r.maxV)}</div></div>
+        <div class="rcm-item"><div class="rcm-lbl">Ahorrado</div><div class="rcm-val" style="color:var(--green)">${fmt(r.savedAmount)}</div></div>
+      </div>
+      <div class="reto-card-prog">
+        <div class="rcp-head"><span>Progreso</span><span>${Math.round(pct)}%</span></div>
+        <div class="rcp-rail"><div class="rcp-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+      <button class="btn-link" id="link-btn-${r.id}" onclick="copyLink('${r.id}','${esc(r.id)}')">
+        <i class="fa-solid fa-link"></i> Copiar link del reto
+      </button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ── Copiar link ── */
+function copyLink(retoId) {
+  const link = `${BASE_URL}?reto=${retoId}`;
+  navigator.clipboard.writeText(link).then(()=>{
+    const btn=document.getElementById(`link-btn-${retoId}`);
+    if(btn){
+      btn.classList.add('copied');
+      btn.innerHTML='<i class="fa-solid fa-check"></i> ¡Link copiado!';
+      setTimeout(()=>{
+        btn.classList.remove('copied');
+        btn.innerHTML='<i class="fa-solid fa-link"></i> Copiar link del reto';
+      },2000);
+    }
+    toast('Link copiado al portapapeles','ok');
+  }).catch(()=>{
+    prompt('Copia este link:', link);
+  });
+}
+
+/* ── Modal crear/editar reto ── */
+function openModalReto(retoId) {
+  editingId = retoId;
+  const isEdit = !!retoId;
+  setText('modal-reto-title', isEdit
+    ? '<i class="fa-solid fa-pen" style="color:var(--gold)"></i> Editar Reto'
+    : '<i class="fa-solid fa-plus" style="color:var(--blue)"></i> Nuevo Reto');
+  document.querySelector('#modal-reto-title').innerHTML = isEdit
+    ? '<i class="fa-solid fa-pen" style="color:var(--gold)"></i> Editar Reto'
+    : '<i class="fa-solid fa-plus" style="color:var(--blue)"></i> Nuevo Reto';
+
+  // Limpiar campos
+  ['f-nombre','f-meta','f-min','f-max'].forEach(id=>$(id).value='');
+  $('f-plazo').value='12';
+  hide('reto-err');
+  resetCalcPreview();
+
+  if (isEdit) {
+    // Cargar datos del reto
+    db.collection('retos').doc(retoId).get().then(snap=>{
+      if(!snap.exists) return;
+      const d=snap.data();
+      $('f-nombre').value = d.nombre||'';
+      $('f-meta').value   = d.meta||'';
+      $('f-min').value    = d.minV||'';
+      $('f-max').value    = d.maxV||'';
+      $('f-plazo').value  = d.plazo||12;
+      calcPreview();
+    });
+  }
+
+  show('modal-reto');
+  $('f-nombre').focus();
+}
+function closeModalReto() { hide('modal-reto'); editingId=null; }
+
+function calcPreview() {
+  const meta  = parseFloat($('f-meta').value);
+  const minV  = parseFloat($('f-min').value);
+  const maxV  = parseFloat($('f-max').value);
+  const plazo = parseInt($('f-plazo').value) || 12;
+  if (!meta||!minV||!maxV||minV>=maxV||meta<minV) { resetCalcPreview(); return; }
+
+  const n   = calcDias(plazo);
+  const avg = Math.round(meta / n);
+  setText('cp-n',   n + ' casillas (' + plazo + ' meses × 30 días)');
+  setText('cp-avg', fmt(avg) + ' promedio');
+  setText('cp-min', fmt(minV));
+  setText('cp-max', fmt(maxV));
+
+  // Mostrar distribución de niveles
+  const dist = calcDistribucion(meta, minV, maxV, plazo);
+  const wrap = $('cp-dist');
+  if (wrap) {
+    wrap.innerHTML = dist.map(d =>
+      `<div class="cp-dist-row">
+        <span class="cp-dist-monto">${fmt(d.monto)}</span>
+        <span class="cp-dist-bar-wrap"><span class="cp-dist-bar" style="width:${Math.round(d.cantidad/n*100)}%"></span></span>
+        <span class="cp-dist-cant">×${d.cantidad}</span>
+      </div>`
+    ).join('');
+  }
+}
+function resetCalcPreview() {
+  ['cp-n','cp-avg','cp-min','cp-max'].forEach(id=>setText(id,'—'));
+  const wrap=$('cp-dist'); if(wrap) wrap.innerHTML='';
+}
+
+async function saveReto() {
+  const nombre = $('f-nombre').value.trim();
+  const meta   = parseFloat($('f-meta').value);
+  const minV   = parseFloat($('f-min').value);
+  const maxV   = parseFloat($('f-max').value);
+  const plazo  = parseInt($('f-plazo').value)||12;
+
+  if (!nombre)           return showRetoErr('El nombre es obligatorio');
+  if (!meta||meta<10000) return showRetoErr('Ingresa una meta válida (mín. $10.000)');
+  if (!minV||minV<500)   return showRetoErr('El monto mínimo debe ser al menos $500');
+  if (!maxV||maxV<=minV) return showRetoErr('El máximo debe ser mayor que el mínimo');
+  if (meta<minV)         return showRetoErr('La meta debe ser mayor que el mínimo por casilla');
+
+  const btn=$('btn-reto-save');
+  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+  try {
+    if (editingId) {
+      await db.collection('retos').doc(editingId).update({
+        nombre,
+        meta:  Number(meta),
+        minV:  Number(minV),
+        maxV:  Number(maxV),
+        plazo: Number(plazo),
+        fechaModificacion: new Date().toISOString()
+      });
+      toast('Reto actualizado','ok');
+    } else {
+      const retoId = generarId();
+      const seed   = Number((Date.now() ^ (Math.random()*0x7fffffff|0)) >>> 0);
+      await db.collection('retos').doc(retoId).set({
+        nombre,
+        meta:  Number(meta),
+        minV:  Number(minV),
+        maxV:  Number(maxV),
+        plazo: Number(plazo),
+        seed,
+        fechaCreacion: new Date().toISOString(),
+      });
+      toast('¡Reto creado! Copia el link para compartirlo.','ok');
+    }
+    closeModalReto();
+    await loadRetos();
+  } catch(e) {
+    console.error(e);
+    showRetoErr('Error al guardar. Revisa tu conexión.');
+  }
+  btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Guardar reto';
+}
+
+function generarId() {
+  // ID de 6 caracteres: letras+números, fácil de leer
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id='';
+  for(let i=0;i<6;i++) id+=chars[Math.floor(Math.random()*chars.length)];
+  return id;
+}
+
+function showRetoErr(msg) { $('reto-err-txt').textContent=msg; show('reto-err'); }
+
+/* ── Eliminar reto ── */
+function askDelete(retoId, nombre) {
+  deletingId=retoId;
+  setText('del-nombre', nombre);
+  show('modal-del');
+}
+
+async function confirmDelete() {
+  if(!deletingId) return;
+  hide('modal-del');
+  showLoading('Eliminando...');
+  try {
+    // Borrar casillas
+    const snap=await db.collection('retos').doc(deletingId).collection('casillas').get();
+    const batch=db.batch();
+    snap.forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+    // Borrar reto
+    await db.collection('retos').doc(deletingId).delete();
+    toast('Reto eliminado','ok');
+  } catch(e) { toast('Error al eliminar','err'); console.error(e); }
+  deletingId=null;
+  hideLoading();
+  await loadRetos();
+}
+
+/* ── Reiniciar progreso ── */
+function askReset(retoId) {
+  deletingId=retoId; // reusar variable
+  show('modal-reset');
+}
+
+async function confirmReset() {
+  if(!deletingId) return;
+  hide('modal-reset');
+  showLoading('Reiniciando...');
+  try {
+    const snap=await db.collection('retos').doc(deletingId).collection('casillas').get();
+    const batch=db.batch();
+    snap.forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+    toast('Progreso reiniciado','ok');
+  } catch(e) { toast('Error','err'); console.error(e); }
+  deletingId=null;
+  hideLoading();
+  await loadRetos();
+}
+
+/* ═══════════════════════════════════════════════════════
+   RETO — VISTA DE PARTICIPANTE
+═══════════════════════════════════════════════════════ */
+async function enterReto(retoId) {
+  showLoading('Cargando reto...');
+  try {
+    const snap = await db.collection('retos').doc(retoId).get();
+    if (!snap.exists) {
+      hideLoading(); show('login-screen');
+      toast('Reto no encontrado. Verifica el link.','err');
+      return;
+    }
+    const data = snap.data();
+    const meta = Number(data.meta);
+    const minV = Number(data.minV);
+    const maxV = Number(data.maxV);
+    const seed = Number(data.seed);
+
+    if (!meta || !minV || !maxV || !seed) {
+      hideLoading();
+      toast('El reto tiene datos incompletos. Edítalo desde el admin.','err');
+      console.error('Datos faltantes:', {meta, minV, maxV, seed, data});
+      return;
+    }
+
+    currentReto = {id: retoId, ...data, meta, minV, maxV, seed};
+    CASILLAS = generateMontos(meta, minV, maxV, seed, Number(data.plazo)||12).map((monto,i)=>({id:i+1, monto}));
+    done = {};
+    CASILLAS.forEach(c=>{ done[c.id]=false; });
+
+    hideLoading();
+    show('reto-screen'); hide('login-screen'); hide('admin-screen');
+    setText('hdr-nombre', currentReto.nombre||'Reto Ahorro');
+    bindRetoEvents();
+    renderGrid();
+    updateDashboard();
+    startSync(retoId);
+  } catch(e) {
+    hideLoading();
+    console.error('Error enterReto:', e);
+    toast('Error al cargar el reto','err');
+  }
+}
+
+function bindRetoEvents() {
+  $('btn-reto-theme').onclick = toggleTheme;
+  $('btn-reto-logout').onclick = () => {
+    if(unsub){unsub();unsub=null;}
+    clearSession();
+    // Limpiar URL
+    history.replaceState(null,'',window.location.pathname);
+    hide('reto-screen');
+    currentReto=null; CASILLAS=[]; done={};
+    showLogin();
+  };
+  $('mc-cancel').onclick = ()=>{ pendingId=null; hide('modal-cas'); };
+  $('mc-ok').onclick = confirmMark;
+  $('modal-cas').addEventListener('click',e=>{ if(e.target.id==='modal-cas'){pendingId=null;hide('modal-cas');} });
+
+  document.querySelectorAll('.fpill').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.fpill').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); filtro=b.dataset.f; applyFilter();
+    };
+  });
+}
+
+/* ── Sincronización en tiempo real ── */
+function startSync(retoId) {
+  if(unsub){unsub();unsub=null;}
+  setSyncUI('syncing');
+  unsub = db.collection('retos').doc(retoId).collection('casillas')
+    .onSnapshot(snap=>{
+      let changed=false;
+      snap.docChanges().forEach(ch=>{
+        const id=parseInt(ch.doc.id);
+        const nd=!!ch.doc.data()?.completada;
+        if(done[id]!==nd){done[id]=nd;changed=true;}
+      });
+      if(changed){renderGrid();updateDashboard();}
+      setSyncUI('online');
+      setFooter('En tiempo real · '+new Date().toLocaleTimeString());
+    }, err=>{
+      setSyncUI('offline');
+      setFooter('Sin conexión — datos locales');
+      console.warn(err);
+    });
+}
+
+/* ── Grid ── */
+function renderGrid() {
+  const grid=$('grid');
+  const pending  =CASILLAS.filter(c=>!done[c.id]);
+  const completed=CASILLAS.filter(c=> done[c.id]);
+  const ordered  =[...pending,...completed];
+
+  if(grid.children.length===CASILLAS.length){
+    const frag=document.createDocumentFragment();
+    ordered.forEach(c=>{
+      const el=grid.querySelector(`.casilla[data-id="${c.id}"]`);
+      if(el){el.classList.toggle('done',!!done[c.id]);frag.appendChild(el);}
+    });
+    grid.appendChild(frag); applyFilter(); return;
+  }
+  grid.innerHTML='';
+  const frag=document.createDocumentFragment();
+  ordered.forEach(c=>frag.appendChild(makeCasilla(c)));
+  grid.appendChild(frag);
+  applyFilter();
+}
+
+function makeCasilla(c) {
+  const color=getColor(c.monto);
+  const el=document.createElement('div');
+  el.className='casilla'+(done[c.id]?' done':'');
+  el.dataset.id=c.id;
+  el.style.setProperty('--cc',color);
+  el.innerHTML=`
+    <span class="cas-num">#${String(c.id).padStart(3,'0')}</span>
+    <span class="cas-amount">${fmt(c.monto)}</span>
+    <i class="fa-solid fa-circle-check cas-check"></i>
+    <div class="cas-particles"></div>
+  `;
+  el.addEventListener('click',()=>onCasillaClick(c.id));
+  return el;
+}
+
+function getColor(m) {
+  if(!currentReto) return '#3d8bff';
+  const avg=currentReto.meta/CASILLAS.length;
+  if(m<avg*.4)  return '#00e5a0';
+  if(m<avg*.9)  return '#3d8bff';
+  if(m<avg*1.8) return '#a78bfa';
+  if(m<avg*3.5) return '#fb923c';
+  return '#f472b6';
+}
+
+/* ── Dashboard ── */
+function updateDashboard() {
+  const doneList=CASILLAS.filter(c=>done[c.id]);
+  const saved=doneList.reduce((s,c)=>s+c.monto,0);
+  const left=Math.max(0,currentReto.meta-saved);
+  const pct=Math.min(100,saved/currentReto.meta*100);
+  const pendN=CASILLAS.length-doneList.length;
+
+  setText('hero-amount', fmt(saved));
+  setText('hero-meta',   'Meta: '+fmt(currentReto.meta));
+  setText('stat-left',   fmt(left));
+  setText('stat-done',   doneList.length);
+  setText('stat-total-n',CASILLAS.length);
+  setText('stat-pend',   pendN);
+
+  const circ=263.9, offset=circ-(circ*pct/100);
+  $('ring-fill').setAttribute('stroke-dashoffset',offset.toFixed(1));
+  setText('ring-pct',    Math.round(pct)+'%');
+  $('prog-fill').style.width=`${pct}%`;
+  setText('prog-done-n', doneList.length);
+  setText('prog-total-n',CASILLAS.length);
+  setText('fc-all',      CASILLAS.length);
+  setText('fc-pend',     pendN);
+  setText('fc-done',     doneList.length);
+}
+
+function applyFilter() {
+  document.querySelectorAll('.casilla').forEach(el=>{
+    const id=parseInt(el.dataset.id);
+    let show=true;
+    if(filtro==='pending') show=!done[id];
+    if(filtro==='done')    show= !!done[id];
+    el.classList.toggle('f-hide',!show);
+  });
+}
+
+/* ── Marcar casilla ── */
+function onCasillaClick(id) {
+  if(done[id]) return;
+  const c=CASILLAS.find(x=>x.id===id); if(!c) return;
+  pendingId=id;
+  const color=getColor(c.monto);
+  const iw=$('mc-icon');
+  iw.style.cssText=`background:color-mix(in srgb,${color} 14%,transparent);border:1px solid color-mix(in srgb,${color} 30%,transparent);color:${color};width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto .9rem;`;
+  setText('mc-title',`Casilla #${String(c.id).padStart(3,'0')}`);
+  setText('mc-body','¿Confirmás que guardaste este dinero?');
+  $('mc-amount').innerHTML=`<i class="fa-solid fa-coins" style="color:${color}"></i> ${fmt(c.monto)}`;
+  show('modal-cas');
+}
+
+async function confirmMark() {
+  if(pendingId===null) return;
+  const id=pendingId; pendingId=null;
+  hide('modal-cas');
+  if(done[id]) return;
+
+  done[id]=true;
+  const c=CASILLAS.find(x=>x.id===id);
+  const el=document.querySelector(`.casilla[data-id="${id}"]`);
+  if(el){
+    el.classList.add('done','popping');
+    spawnParticles(el,getColor(c.monto));
+    el.addEventListener('animationend',()=>{ el.classList.remove('popping'); $('grid').appendChild(el); },{once:true});
+  }
+  updateDashboard(); applyFilter();
+  toast(`✓ ${fmt(c.monto)} guardado`,'ok');
+
+  try {
+    await db.collection('retos').doc(currentReto.id).collection('casillas').doc(String(id)).set({
+      monto:c.monto, completada:true, fecha:new Date().toISOString()
+    });
+  } catch(e) {
+    done[id]=false; renderGrid(); updateDashboard();
+    toast('Error al guardar. Sin conexión.','err');
+    console.error(e);
+  }
+}
+
+function spawnParticles(el,color) {
+  const pp=el.querySelector('.cas-particles'); if(!pp) return;
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div'); p.className='cas-p';
+    p.style.cssText=`left:${10+Math.random()*80}%;top:${10+Math.random()*80}%;background:${color};animation-delay:${i*30}ms`;
+    pp.appendChild(p); setTimeout(()=>p.remove(),600);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEMA
+═══════════════════════════════════════════════════════ */
+function applyTheme() {
+  const t=localStorage.getItem(LS_THEME)||'dark';
+  document.body.className=t;
+  updateThemeIcons();
+}
+function toggleTheme() {
+  const next=document.body.classList.contains('dark')?'light':'dark';
+  document.body.className=next;
+  localStorage.setItem(LS_THEME,next);
+  updateThemeIcons();
+}
+function updateThemeIcons() {
+  const isDark=document.body.classList.contains('dark');
+  const cls=isDark?'fa-solid fa-sun':'fa-solid fa-moon';
+  ['admin-theme-icon','reto-theme-icon'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.className=cls;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   ESTRELLAS (fondo login)
+═══════════════════════════════════════════════════════ */
+function initStars() {
+  const c=$('stars-canvas'); if(!c) return;
+  const ctx=c.getContext('2d');
+  let s=[];
+  const resize=()=>{
+    c.width=innerWidth; c.height=innerHeight;
+    s=Array.from({length:100},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.3+.3,o:Math.random(),d:Math.random()*.003+.001}));
+  };
+  const draw=()=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    s.forEach(p=>{ p.o+=p.d; if(p.o>1||p.o<0) p.d*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${Math.max(0,Math.min(1,p.o)).toFixed(2)})`; ctx.fill(); });
+    requestAnimationFrame(draw);
+  };
+  addEventListener('resize',resize); resize(); draw();
+}
+
+/* ═══════════════════════════════════════════════════════
+   HELPERS UI
+═══════════════════════════════════════════════════════ */
+function $(id){ return document.getElementById(id); }
+function show(id){ $(id)?.classList.remove('hidden'); }
+function hide(id){ $(id)?.classList.add('hidden'); }
+function setText(id,v){ const e=$(id); if(e) e.textContent=v; }
+function fmt(n){ return '$'+Math.round(n).toLocaleString('es-CO'); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function setSyncUI(state){
+  const dot=$('badge-dot'), txt=$('badge-txt');
+  if(!dot||!txt) return;
+  dot.className='badge-dot';
+  if(state==='online')  txt.textContent='En línea';
+  if(state==='offline'){dot.classList.add('offline'); txt.textContent='Sin conexión';}
+  if(state==='syncing'){dot.classList.add('syncing'); txt.textContent='Sincronizando...';}
+}
+function setFooter(msg){ const e=$('footer-status'); if(e) e.textContent=msg; }
+
+function toast(msg, type='ok') {
+  const el=$('toast'), tx=$('toast-msg'), ic=$('toast-icon');
+  if(!el||!tx) return;
+  tx.textContent=msg;
+  if(ic){
+    ic.className='';
+    if(type==='ok')   ic.className='fa-solid fa-circle-check toast-ok';
+    if(type==='err')  ic.className='fa-solid fa-circle-xmark toast-err';
+    if(type==='info') ic.className='fa-solid fa-circle-info toast-info';
+  }
+  el.classList.remove('hidden');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.add('hidden'),2800);
+}
+</script>
 </body>
 </html>
