@@ -34,6 +34,87 @@ html { scroll-behavior:smooth; }
 body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; transition:background .4s,color .4s; overflow-x:hidden; }
 .hidden { display:none !important; }
 
+/* ─── LOADING ─────────────────────────────────────── */
+.loading-screen {
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg);
+  z-index:900;
+}
+.loading-inner { text-align:center; }
+
+/* ─── RESPONSIVE FIXES ─────────────────────────────── */
+
+/* Wizard: scroll en pantallas pequeñas */
+.wizard-screen {
+  align-items:flex-start;
+  padding:1rem;
+}
+@media(max-width:540px) {
+  .wiz-card { padding:1.4rem 1rem 1.2rem; border-radius:18px; }
+  .wiz-header h2 { font-size:1.2rem; }
+  .presets-grid { grid-template-columns:repeat(4,1fr); gap:.3rem; }
+  .preset-btn { font-size:.72rem; padding:.38rem .3rem; }
+  .wiz-preview { grid-template-columns:1fr; gap:.35rem; }
+  .prev-row { font-size:.78rem; }
+  .wiz-actions { gap:.5rem; }
+  .wiz-btn-next { font-size:.82rem; padding:.6rem 1rem; }
+  .wiz-btn-back { font-size:.82rem; padding:.6rem .8rem; }
+}
+@media(max-width:380px) {
+  .presets-grid { grid-template-columns:repeat(4,1fr); gap:.22rem; }
+  .preset-btn { font-size:.66rem; padding:.32rem .2rem; }
+  .wiz-steps-row { gap:0; }
+  .ws-line { min-width:20px; }
+}
+
+/* Header app: no overflow en móvil */
+@media(max-width:480px) {
+  .hdr-inner { padding:.6rem .85rem; gap:.5rem; }
+  .hdr-title { font-size:.9rem; max-width:130px; }
+  .hdr-badge { display:none; }
+  .hbtn { width:32px; height:32px; font-size:.8rem; border-radius:8px; }
+}
+@media(max-width:360px) {
+  .hdr-title { max-width:100px; font-size:.82rem; }
+  .hdr-actions { gap:.28rem; }
+}
+
+/* Hero: una columna en móvil */
+@media(max-width:700px) {
+  .hero-section { grid-template-columns:1fr; }
+  .hero-ring { width:86px; height:86px; }
+}
+@media(max-width:480px) {
+  .hero-card { padding:1.1rem 1rem; }
+  .hero-amount { font-size:clamp(1.3rem,6vw,1.8rem); }
+  .app-main { padding:1rem .85rem 2rem; }
+  .mini-stats { flex-direction:row; flex-wrap:wrap; }
+  .mini-card { flex:1 1 calc(33% - .5rem); min-width:90px; }
+}
+@media(max-width:380px) {
+  .mini-card { flex:1 1 calc(50% - .4rem); }
+}
+
+/* Modales: ajuste en móvil */
+@media(max-width:400px) {
+  .modal-box { padding:1.5rem 1.1rem; border-radius:16px; }
+  .modal-row { flex-direction:column; }
+  .m-cancel, .m-confirm { justify-content:center; }
+}
+
+/* Filtros en móvil */
+@media(max-width:480px) {
+  .fpill { font-size:.72rem; padding:.3rem .65rem; }
+  .legend { gap:.25rem; }
+  .leg-item { font-size:.62rem; }
+}
+
+/* Toast en móvil */
+@media(max-width:480px) {
+  .toast { font-size:.76rem; padding:.55rem 1rem; max-width:calc(100vw - 2rem); white-space:normal; text-align:center; }
+}
+
 /* ─── LOGIN ──────────────────────────────────────── */
 .login-screen {
   position:fixed; inset:0;
@@ -117,7 +198,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
 /* ─── WIZARD ─────────────────────────────────────── */
 .wizard-screen {
   position:fixed; inset:0;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:flex-start; justify-content:center;
   z-index:200; padding:1rem;
   overflow-y:auto;
 }
@@ -131,6 +212,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); min-hei
   width:min(540px,100%);
   box-shadow:var(--shadow);
   animation:cardIn .5s cubic-bezier(.22,1,.36,1);
+  margin:auto;
 }
 .wiz-header { text-align:center; margin-bottom:1.6rem; }
 .wiz-logo {
@@ -397,4 +479,6 @@ body.light .hero-amount { color:#0d1117; }
 /* Toast */
 .toast { position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:.7rem 1.3rem;font-size:.82rem;font-weight:600;box-shadow:var(--shadow);z-index:9999;display:flex;align-items:center;gap:.5rem;animation:toastIn .3s ease;white-space:nowrap; }
 .toast-icon { color:var(--green); }
+.toast-err  { color:var(--red) !important; }
+.loading-txt { margin-top:1rem; color:var(--muted); font-size:.85rem; text-align:center; }
 @keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
