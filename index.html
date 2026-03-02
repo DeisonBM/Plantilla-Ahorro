@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#080b12"/>
+  <title>Reto Ahorro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="dark">
+
+<!-- ══════════ LOGIN ══════════ -->
+<div class="login-screen" id="login-screen">
+  <canvas class="stars-canvas" id="stars-canvas"></canvas>
+  <div class="login-card">
+    <div class="login-glow"></div>
+    <div class="coin-icon">
+      <div class="coin-inner"><i class="fa-solid fa-piggy-bank"></i></div>
+      <div class="coin-ring r1"></div>
+      <div class="coin-ring r2"></div>
+    </div>
+    <h1 class="login-title">Reto Ahorro</h1>
+    <p class="login-sub">Ingresa tu PIN de acceso</p>
+    <div class="pin-row">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <p class="pin-msg hidden" id="pin-msg">
+      <i class="fa-solid fa-circle-xmark"></i> PIN incorrecto
+    </p>
+    <div class="keypad">
+      <button class="kbtn" data-n="1">1</button>
+      <button class="kbtn" data-n="2">2</button>
+      <button class="kbtn" data-n="3">3</button>
+      <button class="kbtn" data-n="4">4</button>
+      <button class="kbtn" data-n="5">5</button>
+      <button class="kbtn" data-n="6">6</button>
+      <button class="kbtn" data-n="7">7</button>
+      <button class="kbtn" data-n="8">8</button>
+      <button class="kbtn" data-n="9">9</button>
+      <button class="kbtn ghost"></button>
+      <button class="kbtn" data-n="0">0</button>
+      <button class="kbtn del" id="kbtn-del"><i class="fa-solid fa-delete-left"></i></button>
+    </div>
+    <div class="login-credit">
+      <i class="fa-solid fa-code"></i> Desarrollado por <strong>Deison Bm</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ WIZARD ══════════ -->
+<div class="wizard-screen hidden" id="wizard-screen">
+  <div class="wiz-orbs">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+  </div>
+  <div class="wiz-card">
+
+    <!-- Header -->
+    <div class="wiz-header">
+      <div class="wiz-logo"><i class="fa-solid fa-piggy-bank"></i></div>
+      <h2>Configura tu Reto</h2>
+      <p>Elige tu meta, casillas y plazo</p>
+    </div>
+
+    <!-- Indicador de pasos -->
+    <div class="wiz-steps-row">
+      <div class="wiz-step wiz-active" data-s="1">
+        <div class="ws-bubble"><i class="fa-solid fa-bullseye"></i></div>
+        <span>Meta</span>
+      </div>
+      <div class="ws-line"></div>
+      <div class="wiz-step wiz-pending" data-s="2">
+        <div class="ws-bubble"><i class="fa-regular fa-calendar"></i></div>
+        <span>Plazo</span>
+      </div>
+      <div class="ws-line"></div>
+      <div class="wiz-step wiz-pending" data-s="3">
+        <div class="ws-bubble"><i class="fa-solid fa-pen"></i></div>
+        <span>Nombre</span>
+      </div>
+    </div>
+
+    <!-- ── PASO 1: Meta y Casillas ── -->
+    <div class="wiz-panel" id="wiz-p1">
+      <div class="wiz-field">
+        <label class="wiz-label">
+          <i class="fa-solid fa-bullseye" style="color:var(--gold)"></i>
+          ¿Cuánto quieres ahorrar?
+        </label>
+        <div class="presets-grid">
+          <button class="preset-btn preset-meta" data-v="500000">$500K</button>
+          <button class="preset-btn preset-meta" data-v="1000000">$1M</button>
+          <button class="preset-btn preset-meta" data-v="2000000">$2M</button>
+          <button class="preset-btn preset-meta" data-v="5000000">$5M</button>
+          <button class="preset-btn preset-meta active" data-v="8000000">$8M</button>
+          <button class="preset-btn preset-meta" data-v="10000000">$10M</button>
+          <button class="preset-btn preset-meta" data-v="15000000">$15M</button>
+          <button class="preset-btn preset-meta" data-v="20000000">$20M</button>
+        </div>
+        <div class="wiz-input-wrap">
+          <span class="wiz-input-pre">$</span>
+          <input type="number" id="wiz-meta" value="8000000" min="10000" max="999999999" step="100000" placeholder="Ej: 8000000"/>
+          <span class="wiz-input-hint">COP</span>
+        </div>
+        <small class="wiz-hint">Mínimo $10.000 — puedes escribir cualquier valor</small>
+      </div>
+
+      <div class="wiz-field">
+        <label class="wiz-label">
+          <i class="fa-solid fa-grip" style="color:var(--blue)"></i>
+          ¿Cuántas casillas?
+        </label>
+        <div class="presets-grid">
+          <button class="preset-btn preset-n" data-v="52">52</button>
+          <button class="preset-btn preset-n" data-v="100">100</button>
+          <button class="preset-btn preset-n" data-v="150">150</button>
+          <button class="preset-btn preset-n active" data-v="200">200</button>
+          <button class="preset-btn preset-n" data-v="250">250</button>
+          <button class="preset-btn preset-n" data-v="300">300</button>
+          <button class="preset-btn preset-n" data-v="365">365</button>
+          <button class="preset-btn preset-n" data-v="500">500</button>
+        </div>
+        <input type="number" id="wiz-n" value="200" min="5" max="500"/>
+        <small class="wiz-hint">Entre 5 y 500 casillas</small>
+      </div>
+
+      <!-- Preview en vivo -->
+      <div class="wiz-preview">
+        <div class="prev-row"><i class="fa-solid fa-bullseye" style="color:var(--gold)"></i><span>Meta</span><b id="prev-meta">$8.000.000</b></div>
+        <div class="prev-row"><i class="fa-solid fa-grip" style="color:var(--blue)"></i><span>Casillas</span><b id="prev-n">200</b></div>
+        <div class="prev-row"><i class="fa-solid fa-chart-bar" style="color:var(--green)"></i><span>Promedio</span><b id="prev-avg">$40.000</b></div>
+        <div class="prev-row"><i class="fa-solid fa-calendar-day" style="color:var(--purp)"></i><span>Ritmo</span><b id="prev-ritmo">~17/mes</b></div>
+      </div>
+    </div>
+
+    <!-- ── PASO 2: Plazo ── -->
+    <div class="wiz-panel hidden" id="wiz-p2">
+      <div class="wiz-field">
+        <label class="wiz-label">
+          <i class="fa-regular fa-calendar" style="color:var(--blue)"></i>
+          ¿En cuántos meses quieres completarlo?
+        </label>
+        <div class="presets-grid">
+          <button class="preset-btn preset-plazo" data-v="1">1 m</button>
+          <button class="preset-btn preset-plazo" data-v="3">3 m</button>
+          <button class="preset-btn preset-plazo" data-v="6">6 m</button>
+          <button class="preset-btn preset-plazo active" data-v="12">12 m</button>
+          <button class="preset-btn preset-plazo" data-v="18">18 m</button>
+          <button class="preset-btn preset-plazo" data-v="24">24 m</button>
+          <button class="preset-btn preset-plazo" data-v="36">36 m</button>
+          <button class="preset-btn preset-plazo" data-v="60">60 m</button>
+        </div>
+        <div class="wiz-input-wrap">
+          <input type="number" id="wiz-plazo" value="12" min="1" max="120"/>
+          <span class="wiz-input-hint">meses</span>
+        </div>
+        <small class="wiz-hint">Entre 1 y 120 meses</small>
+      </div>
+
+      <div class="wiz-preview">
+        <div class="prev-row"><i class="fa-solid fa-bullseye" style="color:var(--gold)"></i><span>Meta</span><b id="prev-meta2">—</b></div>
+        <div class="prev-row"><i class="fa-solid fa-grip" style="color:var(--blue)"></i><span>Casillas</span><b id="prev-n2">—</b></div>
+        <div class="prev-row"><i class="fa-regular fa-calendar" style="color:var(--green)"></i><span>Plazo</span><b id="prev-plazo">—</b></div>
+        <div class="prev-row"><i class="fa-solid fa-calendar-day" style="color:var(--purp)"></i><span>Ritmo</span><b id="prev-ritmo2">—</b></div>
+      </div>
+    </div>
+
+    <!-- ── PASO 3: Nombre y Resumen ── -->
+    <div class="wiz-panel hidden" id="wiz-p3">
+      <div class="wiz-field">
+        <label class="wiz-label">
+          <i class="fa-solid fa-pen" style="color:var(--gold)"></i>
+          ¿Cómo se llama tu reto?
+        </label>
+        <input type="text" id="wiz-nombre" placeholder="Ej: Vacaciones 2025, Mi casa, Moto…" maxlength="40"/>
+        <small class="wiz-hint">Dale un nombre motivador</small>
+      </div>
+
+      <div class="wiz-summary">
+        <div class="sum-title"><i class="fa-solid fa-circle-check" style="color:var(--green)"></i> Resumen del reto</div>
+        <div class="sum-row"><span>Nombre</span><b id="sum-nombre">—</b></div>
+        <div class="sum-row"><span>Meta total</span><b id="sum-meta">—</b></div>
+        <div class="sum-row"><span>Casillas</span><b id="sum-n">—</b></div>
+        <div class="sum-row"><span>Plazo</span><b id="sum-plazo">—</b></div>
+        <div class="sum-row"><span>Prom. por casilla</span><b id="sum-avg">—</b></div>
+      </div>
+    </div>
+
+    <p class="wiz-err hidden" id="wiz-err"><i class="fa-solid fa-triangle-exclamation"></i> <span id="wiz-err-txt"></span></p>
+
+    <div class="wiz-actions">
+      <button class="wiz-btn-back" id="wiz-back" style="visibility:hidden">
+        <i class="fa-solid fa-arrow-left"></i> Atrás
+      </button>
+      <button class="wiz-btn-next" id="wiz-next">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div class="app-screen hidden" id="app-screen">
+  <div class="bg-orbs">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+  </div>
+
+  <header class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-brand">
+        <div class="hdr-coin"><i class="fa-solid fa-piggy-bank"></i></div>
+        <div class="hdr-brand-text">
+          <div class="hdr-title" id="hdr-nombre">Reto Ahorro</div>
+          <div class="hdr-badge">
+            <span class="badge-dot" id="badge-dot"></span>
+            <span id="badge-txt">Conectando...</span>
+          </div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <button class="hbtn" id="btn-theme" title="Cambiar tema">
+          <i class="fa-solid fa-sun" id="theme-icon"></i>
+        </button>
+        <button class="hbtn" id="btn-config" title="Nuevo reto">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
+        <button class="hbtn warn" id="btn-reset" title="Reiniciar progreso">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button class="hbtn" id="btn-logout" title="Cerrar sesión">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- HERO -->
+    <div class="hero-section">
+      <div class="hero-card">
+        <div class="hero-bg-text">$</div>
+        <div class="hero-content">
+          <div class="hero-lbl"><i class="fa-solid fa-piggy-bank"></i> TOTAL AHORRADO</div>
+          <div class="hero-amount" id="hero-amount">$0</div>
+          <div class="hero-sub" id="hero-meta">Meta: —</div>
+        </div>
+        <div class="hero-ring-wrap">
+          <svg class="hero-ring" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3d8bff"/>
+                <stop offset="100%" stop-color="#00e5a0"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-track" cx="50" cy="50" r="42"/>
+            <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="42"
+              stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+            <text class="ring-pct" x="50" y="47" text-anchor="middle" id="ring-pct">0%</text>
+            <text class="ring-sub-txt" x="50" y="58" text-anchor="middle">progreso</text>
+          </svg>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-card" style="--ic:var(--gold)">
+          <div class="mini-ico-wrap"><i class="fa-solid fa-arrow-trend-down"></i></div>
+          <div class="mini-data">
+            <span class="mini-lbl">Faltante</span>
+            <span class="mini-val gold" id="stat-left">—</span>
+          </div>
+        </div>
+        <div class="mini-card" style="--ic:var(--green)">
+          <div class="mini-ico-wrap"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="mini-data">
+            <span class="mini-lbl">Completadas</span>
+            <span class="mini-val green">
+              <span id="stat-done">0</span>/<span id="stat-total-n">—</span>
+            </span>
+          </div>
+        </div>
+        <div class="mini-card" style="--ic:var(--blue)">
+          <div class="mini-ico-wrap"><i class="fa-regular fa-clock"></i></div>
+          <div class="mini-data">
+            <span class="mini-lbl">Pendientes</span>
+            <span class="mini-val" id="stat-pend">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="prog-section">
+      <div class="prog-head">
+        <span class="prog-label">
+          <i class="fa-solid fa-chart-line"></i> Progreso del reto
+        </span>
+        <span class="prog-nums">
+          <b id="prog-done-n">0</b> / <span id="prog-total-n">—</span> casillas
+        </span>
+      </div>
+      <div class="prog-rail">
+        <div class="prog-fill" id="prog-fill" style="width:0%">
+          <div class="fill-glimmer"></div>
+        </div>
+        <div class="milestone" style="left:25%"><span class="ms-label">25%</span></div>
+        <div class="milestone" style="left:50%"><span class="ms-label">50%</span></div>
+        <div class="milestone" style="left:75%"><span class="ms-label">75%</span></div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="toolbar">
+      <div class="filter-row">
+        <button class="fpill active" data-f="all">
+          <i class="fa-solid fa-grip"></i> Todas <em id="fc-all">—</em>
+        </button>
+        <button class="fpill" data-f="pending">
+          <i class="fa-regular fa-clock"></i> Pendientes <em id="fc-pend">—</em>
+        </button>
+        <button class="fpill" data-f="done">
+          <i class="fa-solid fa-circle-check"></i> Completadas <em id="fc-done">0</em>
+        </button>
+      </div>
+      <div class="legend">
+        <span class="leg-item"><span class="leg-dot" style="background:#00e5a0"></span>Bajo</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#3d8bff"></span>Medio-bajo</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#a78bfa"></span>Medio</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#fb923c"></span>Alto</span>
+        <span class="leg-item"><span class="leg-dot" style="background:#f472b6"></span>Premium</span>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid-section">
+      <div class="grid-loader hidden" id="grid-loader">
+        <div class="spin-ring"></div>
+        <span>Sincronizando...</span>
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <footer class="app-footer">
+      <div class="footer-left">
+        <i class="fa-solid fa-circle-nodes"></i>
+        <span id="footer-status">Modo local</span>
+      </div>
+      <div class="footer-right">
+        <i class="fa-solid fa-code"></i><strong>Deison Bm</strong>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- MODAL: confirmar casilla -->
+<div class="modal-bg hidden" id="modal-cas">
+  <div class="modal-box">
+    <div class="modal-icon-wrap" id="mc-icon-wrap">
+      <i class="fa-solid fa-coins"></i>
+    </div>
+    <h3 id="mc-title">Confirmar</h3>
+    <p id="mc-body">¿Confirmás que guardaste este dinero?</p>
+    <div class="mc-amount-row" id="mc-amount-row"></div>
+    <div class="modal-row">
+      <button class="m-cancel" id="mc-cancel">
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button class="m-confirm m-green" id="mc-ok">
+        <i class="fa-solid fa-check"></i> Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: reiniciar progreso -->
+<div class="modal-bg hidden" id="modal-reset">
+  <div class="modal-box">
+    <div class="modal-icon-wrap">
+      <i class="fa-solid fa-rotate-left"></i>
+    </div>
+    <h3>Reiniciar Progreso</h3>
+    <p>Se borra el progreso actual.<br>La configuración del reto se mantiene.</p>
+    <div class="modal-row">
+      <button class="m-cancel" id="mr-cancel">
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button class="m-confirm" id="mr-ok">
+        <i class="fa-solid fa-rotate-left"></i> Reiniciar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: nuevo reto -->
+<div class="modal-bg hidden" id="modal-reconfig">
+  <div class="modal-box">
+    <div class="modal-icon-wrap" style="background:rgba(245,200,66,0.12);border-color:rgba(245,200,66,0.3);color:var(--gold)">
+      <i class="fa-solid fa-sliders"></i>
+    </div>
+    <h3>Crear Nuevo Reto</h3>
+    <p>Se borrará toda la configuración y el progreso. Podrás configurar un reto completamente nuevo.</p>
+    <div class="modal-row">
+      <button class="m-cancel" id="mrc-cancel">
+        <i class="fa-solid fa-xmark"></i> Cancelar
+      </button>
+      <button class="m-confirm" style="background:var(--gold);color:#000" id="mrc-ok">
+        <i class="fa-solid fa-sliders"></i> Nuevo Reto
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast">
+  <i class="fa-solid fa-circle-check toast-icon"></i>
+  <span id="toast-msg">Guardado</span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
