@@ -277,7 +277,6 @@ body.light .hero-amount{color:#0d1117;}
 
 /* Mini stats */
 .mini-stats{display:flex;flex-direction:column;gap:.6rem;}
-@media(max-width:700px){.mini-stats{flex-direction:row;flex-wrap:wrap;}}
 .mini-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:.75rem .9rem;display:flex;align-items:center;gap:.6rem;flex:1;min-width:0;}
 .mini-ico-wrap{width:32px;height:32px;flex-shrink:0;border-radius:8px;background:color-mix(in srgb,var(--ic) 15%,transparent);border:1px solid color-mix(in srgb,var(--ic) 30%,transparent);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--ic);}
 .mini-lbl{font-size:.62rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em;display:block;}
@@ -356,15 +355,103 @@ body.light .hero-amount{color:#0d1117;}
 .toast-err{color:var(--red);}
 .toast-info{color:var(--blue);}
 
-/* Responsive misc */
+/* ═══════════════════════════════════════════
+   RESPONSIVE COMPLETO
+═══════════════════════════════════════════ */
+
+/* Tablet y abajo — hero en columna, mini-stats en fila */
+@media(max-width:700px){
+  .hero-section{
+    grid-template-columns:1fr;
+    gap:.7rem;
+  }
+  .mini-stats{
+    flex-direction:row;
+    gap:.5rem;
+  }
+  .mini-card{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:.3rem;
+    padding:.6rem .7rem;
+    flex:1;
+    min-width:0;
+  }
+  .mini-val{
+    font-size:.78rem;
+  }
+  .mini-lbl{
+    font-size:.58rem;
+  }
+}
+
+/* Móvil medio */
 @media(max-width:480px){
-  .hdr-inner{padding:.6rem .9rem;}
-  .hdr-title{max-width:130px;}
+  .hdr-inner{padding:.55rem .85rem;}
+  .hdr-title{font-size:.88rem;max-width:120px;}
   .hdr-badge{display:none;}
   .hbtn{width:32px;height:32px;font-size:.8rem;}
-  .reto-main{padding:1rem .85rem 2rem;}
-  .hero-card{padding:1.1rem 1rem;}
-  .modal-box{padding:1.5rem 1.1rem;}
+  .reto-main{padding:.85rem .75rem 2rem;}
+
+  /* Hero card más compacta */
+  .hero-card{padding:1rem .9rem;gap:.7rem;}
+  .hero-lbl{font-size:.62rem;}
+  .hero-amount{font-size:1.5rem;}
+  .hero-sub{font-size:.72rem;}
+  .hero-ring{width:78px;height:78px;}
+  .ring-pct{font-size:12px;}
+
+  /* Mini stats: 3 en fila, compactas */
+  .mini-stats{gap:.4rem;}
+  .mini-card{padding:.5rem .6rem;border-radius:10px;}
+  .mini-ico-wrap{width:26px;height:26px;font-size:.72rem;border-radius:6px;}
+  .mini-val{font-size:.72rem;}
+  .mini-lbl{font-size:.54rem;letter-spacing:.04em;}
+
+  /* Progreso */
+  .prog-section{padding:.85rem 1rem;}
+  .prog-head{font-size:.72rem;}
+
+  /* Filtros */
+  .fpill{font-size:.7rem;padding:.3rem .6rem;}
+  .legend{gap:.25rem;}
+  .leg-item{font-size:.6rem;padding:.18rem .38rem;}
+
+  /* Casillas */
+  .grid{grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:.38rem;}
+  .cas-amount{font-size:.72rem;}
+  .cas-num{font-size:.52rem;}
+
+  /* Modal */
+  .modal-box{padding:1.4rem 1rem;}
+  .modal-cas-box{padding:1.5rem 1rem;}
+}
+
+/* Móvil pequeño */
+@media(max-width:380px){
+  .hero-amount{font-size:1.3rem;}
+  .hero-ring{width:68px;height:68px;}
+  .ring-pct{font-size:11px;}
+  .mini-stats{gap:.3rem;}
+  .mini-card{padding:.45rem .5rem;}
+  .mini-val{font-size:.68rem;}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:.3rem;}
+  .cas-amount{font-size:.66rem;}
+  .reto-main{padding:.7rem .6rem 2rem;}
+}
+
+/* Admin responsive */
+@media(max-width:600px){
+  .admin-stats{grid-template-columns:1fr 1fr;}
+  .admin-main{padding:1rem .9rem 2rem;}
+  .retos-grid{grid-template-columns:1fr;}
+  .astat-val{font-size:1.1rem;}
+}
+@media(max-width:400px){
+  .admin-stats{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .modal-actions{flex-direction:column;}
+  .btn-save,.btn-cancel{width:100%;justify-content:center;}
 }
 </style>
 </head>
@@ -654,7 +741,7 @@ body.light .hero-amount{color:#0d1117;}
 
 <script>
 /* ═══════════════════════════════════════════════════════
-   CONFIGURACIÓN FIREBASE — PEGA TU CONFIG AQUÍ
+   CONFIGURACIÓN FIREBASE 
 ═══════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyDlfkGoQqtPZsk93CQRUFyLGHRu0lm6vwc",
@@ -664,7 +751,6 @@ const firebaseConfig = {
   messagingSenderId: "622538392610",
   appId: "1:622538392610:web:3d4376a7a5c2e78867f67b"
 };
-
 
 /* ═══════════════════════════════════════════════════════
    CONFIGURACIÓN DE LA APP
@@ -714,14 +800,7 @@ function calcDias(plazo) {
   return Math.round(plazo * 30);
 }
 
-/*
- * Genera montos con POCOS valores distintos y MUCHAS repeticiones.
- * Estrategia:
- *  1. Crear 5-8 "niveles" de monto dentro del rango [minV, maxV]
- *  2. Asignar cantidades a cada nivel (más casillas en los niveles bajos)
- *  3. Ajustar cantidades hasta que la suma sea exactamente meta
- *  4. Shuffle reproducible con seed
- */
+
 function generateMontos(meta, minV, maxV, seed, plazo) {
   const n = calcDias(plazo || 12); // total de casillas = días del plazo
 
